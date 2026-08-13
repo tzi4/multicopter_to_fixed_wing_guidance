@@ -12,7 +12,7 @@ filterpy>=1.4.5        # IMM/Kalman hedef durum filtreleri
 scipy>=1.7             # FilterPy sayisal lineer cebir islemleri
 
 # --- Yalniz belirli araclar/senaryolar icin ---
-opencv-python>=4.5     # bbox_to_redis HSV tespiti (SIM). Donanimda IMX500 NN
+opencv-python>=4.14.0.94     # bbox_to_redis HSV tespiti (SIM). Donanimda IMX500 NN
                        # dedektoru bunun yerini alir (bkz. DONANIM_GOREV Gorev 2).
 matplotlib>=3.5        # tools/uc_boyut_video.py (CEVRIMDISI 3B izleme videosu)
 
