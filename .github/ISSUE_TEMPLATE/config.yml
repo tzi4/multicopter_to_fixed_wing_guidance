@@ -1,5 +1,5 @@
 blank_issues_enabled: false
 contact_links:
   - name: Security or physical-safety issue
-    url: https://github.com/tzi4/savasan_iha_yildizlar/security
+    url: https://github.com/tzi4/multicopter_to_fixed_wing_guidance/security
     about: Report sensitive issues privately; do not publish vehicle or site data.

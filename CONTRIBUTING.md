@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for helping improve `savasan_iha_yildizlar`. The project is currently
+Thank you for helping improve `multicopter_to_fixed_wing_guidance`. The project is currently
 maintained privately and will accept public contributions after its public
 release.
 
