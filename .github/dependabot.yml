@@ -17,8 +17,8 @@ updates:
         versions: [">=3.8.0"]
       - dependency-name: redis
         versions: [">6.1.1"]
-      # OpenCV 5 is a major API transition; keep the verified simulator
-      # detector stack on 4.12 until camera/HSV integration tests cover it.
+      # OpenCV 5 is a major API transition. Keep automated updates on 4.x;
+      # the CI smoke test validates the simulator's actual HSV detector path.
       - dependency-name: opencv-python
         versions: [">=5.0.0"]
       # mavlinkHandler 0.0.16 (used by velocity_control.py) requires this
