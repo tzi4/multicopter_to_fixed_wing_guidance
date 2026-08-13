@@ -30,7 +30,7 @@ konumlu ve görüntülü terminaller açık kalır.
 ### 1. Ortamı seçilen araç modeliyle başlat
 
 ```bash
-cd /path/to/savasan_iha_yildizlar_goruntulu_gudum && YILDIZ_VIDEO=1 YILDIZ_VIDEO_ETIKET=hibrit_robofly ./yildizlar_gudum.sh --robofly
+cd /path/to/multicopter_to_fixed_wing_guidance && YILDIZ_VIDEO=1 YILDIZ_VIDEO_ETIKET=hibrit_robofly ./yildizlar_gudum.sh --robofly
 ```
 
 Güncel test aracı RoboFly'dır. Karşılaştırma gerektiğinde araç seçeneğini
@@ -43,31 +43,31 @@ hibrit komutuna eklemek kayıt başlatmaz.
 Başlangıçtan birkaç saniye sonra video ve model doğrulaması:
 
 ```bash
-cd /path/to/savasan_iha_yildizlar_goruntulu_gudum && printf 'model=' && cat run/selected_model && rg "Video kaydi:" logs/bbox.log | tail -1 && ls -lh videos/*.mp4 | tail -1
+cd /path/to/multicopter_to_fixed_wing_guidance && printf 'model=' && cat run/selected_model && rg "Video kaydi:" logs/bbox.log | tail -1 && ls -lh videos/*.mp4 | tail -1
 ```
 
 ### 2. Hedefi göreve sok ve avcıyı havaya kaldır
 
 ```bash
-cd /path/to/savasan_iha_yildizlar_goruntulu_gudum && python3 tools/gorev_baslat.py --drones 1 --drone-alt 60 --plan missions/hedef_elips.plan
+cd /path/to/multicopter_to_fixed_wing_guidance && python3 tools/gorev_baslat.py --drones 1 --drone-alt 60 --plan missions/hedef_elips.plan
 ```
 
 ### 3. Konumlu güdümü çalıştır
 
 ```bash
-cd /path/to/savasan_iha_yildizlar_goruntulu_gudum/guidance_allstar && python3 simple_guided_follow.py --no-kill-mode --yaw-lock --back 25 --down 6
+cd /path/to/multicopter_to_fixed_wing_guidance/guidance_allstar && python3 simple_guided_follow.py --no-kill-mode --yaw-lock --back 25 --down 6
 ```
 
 ### 4. Görüntülü hibrit güdümü çalıştır
 
 ```bash
-cd /path/to/savasan_iha_yildizlar_goruntulu_gudum/guidance_allstar && python3 hibrit_gudum.py
+cd /path/to/multicopter_to_fixed_wing_guidance/guidance_allstar && python3 hibrit_gudum.py
 ```
 
 ### Ortamı kapat
 
 ```bash
-cd /path/to/savasan_iha_yildizlar_goruntulu_gudum && ./yildizlar_gudum.sh --stop
+cd /path/to/multicopter_to_fixed_wing_guidance && ./yildizlar_gudum.sh --stop
 ```
 
 ## Otomatik elips deneyi
@@ -75,7 +75,7 @@ cd /path/to/savasan_iha_yildizlar_goruntulu_gudum && ./yildizlar_gudum.sh --stop
 Yukarıdaki sırayı tek komutla çalıştırmak ve log/özet toplamak için:
 
 ```bash
-cd /path/to/savasan_iha_yildizlar_goruntulu_gudum && YILDIZ_DRONE_MODEL=robofly YILDIZ_VIDEO=1 SURE=360 KONTROL_BEKLE_S=20 GORUNTULU="hibrit_gudum.py" PLAN=missions/hedef_elips.plan METOT=hibrit tools/senaryo.sh
+cd /path/to/multicopter_to_fixed_wing_guidance && YILDIZ_DRONE_MODEL=robofly YILDIZ_VIDEO=1 SURE=360 KONTROL_BEKLE_S=20 GORUNTULU="hibrit_gudum.py" PLAN=missions/hedef_elips.plan METOT=hibrit tools/senaryo.sh
 ```
 
 `tools/senaryo.sh`, `YENIDEN_BASLAT=1` iken videoyu ayrıca zorunlu olarak
@@ -84,7 +84,7 @@ açar; komuttaki `YILDIZ_VIDEO=1` niyeti görünür kılmak için yazılmıştı
 Yığın zaten sağlıklı biçimde açıksa:
 
 ```bash
-cd /path/to/savasan_iha_yildizlar_goruntulu_gudum && YILDIZ_DRONE_MODEL=robofly SURE=360 YENIDEN_BASLAT=0 KONTROL_BEKLE_S=0 GORUNTULU="hibrit_gudum.py" PLAN=missions/hedef_elips.plan METOT=hibrit tools/senaryo.sh
+cd /path/to/multicopter_to_fixed_wing_guidance && YILDIZ_DRONE_MODEL=robofly SURE=360 YENIDEN_BASLAT=0 KONTROL_BEKLE_S=0 GORUNTULU="hibrit_gudum.py" PLAN=missions/hedef_elips.plan METOT=hibrit tools/senaryo.sh
 ```
 
 Bu ikinci komut yalnız yığın daha önce `YILDIZ_VIDEO=1` ile başlatılmışsa
@@ -149,7 +149,7 @@ stereo/depth/radar veya doğrulanmış görüntü-temelli menzil konmalıdır. M
 Deneysel yalnız-görüntü geçişi (varsayılan değildir):
 
 ```bash
-cd /path/to/savasan_iha_yildizlar_goruntulu_gudum/guidance_allstar && python3 hibrit_gudum.py --gecis-kaynagi gorsel
+cd /path/to/multicopter_to_fixed_wing_guidance/guidance_allstar && python3 hibrit_gudum.py --gecis-kaynagi gorsel
 ```
 
 Varsayılan eşikler `alan=%3.4`, `|ex|<=6°`, `|ey|<=15°`, `dwell=0.30 s`.
@@ -233,7 +233,7 @@ değerlendirmesi yeterli değildir.
 Tek değişkenli örnek:
 
 ```bash
-cd /path/to/savasan_iha_yildizlar_goruntulu_gudum && YILDIZ_DRONE_MODEL=robofly SURE=360 KONTROL_BEKLE_S=20 GORUNTULU="hibrit_gudum.py --n-pn 5 --gecis-menzil 20 --tirmanma-hiz-max 2.0" PLAN=missions/hedef_elips.plan METOT=h_n5_r20_vz2 tools/senaryo.sh
+cd /path/to/multicopter_to_fixed_wing_guidance && YILDIZ_DRONE_MODEL=robofly SURE=360 KONTROL_BEKLE_S=20 GORUNTULU="hibrit_gudum.py --n-pn 5 --gecis-menzil 20 --tirmanma-hiz-max 2.0" PLAN=missions/hedef_elips.plan METOT=h_n5_r20_vz2 tools/senaryo.sh
 ```
 
 Her değişik kombinasyona benzersiz `METOT` adı ver. Aynı koşuda birden fazla
@@ -242,8 +242,8 @@ parametreyi değiştirirsen sonucun nedenini ayıramazsın.
 ## Kontrol ve loglar
 
 ```bash
-cd /path/to/savasan_iha_yildizlar_goruntulu_gudum && python3 guidance_allstar/terminal_los_test.py
-cd /path/to/savasan_iha_yildizlar_goruntulu_gudum && python3 -m py_compile guidance_allstar/hibrit_gudum.py guidance_allstar/terminal_los_gudum.py
+cd /path/to/multicopter_to_fixed_wing_guidance && python3 guidance_allstar/terminal_los_test.py
+cd /path/to/multicopter_to_fixed_wing_guidance && python3 -m py_compile guidance_allstar/hibrit_gudum.py guidance_allstar/terminal_los_gudum.py
 ```
 
 Beklenen olaylar:

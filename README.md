@@ -1,4 +1,4 @@
-# savasan_iha_yildizlar_goruntulu_gudum — Görsel Güdüm ve Otonom Önleme Araştırma Platformu
+# multicopter_to_fixed_wing_guidance — Görsel Güdüm ve Otonom Önleme Araştırma Platformu
 
 Bu depo; hareketli bir hava hedefinin çoklu araç simülasyonunda bulunması, arkadan yaklaşma ile emniyetli biçimde devralınması ve son safhada kamera tabanlı bir güdüm yasasıyla önlenmesi için geliştirdiğimiz uçtan uca araştırma platformudur. Çalışma yalnızca bir kontrol algoritmasından ibaret değildir: ArduPilot SITL, Gazebo, ROS, Redis, MAVLink, fiziksel gimbal modeli, Raspberry Pi 5 ve Raspberry Pi AI Camera arasında çalışan bütün zinciri içerir.
 
