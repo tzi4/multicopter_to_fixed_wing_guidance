@@ -23,7 +23,7 @@
 ```bash
 # ======================= NEREDE ÇALIŞIR ========================
 # TÜM komutlar depo kökünden koşar (içinde kendi `cd`si olanlar hariç):
-cd /path/to/savasan_iha_yildizlar
+cd /path/to/savasan_iha_yildizlar_goruntulu_gudum
 # `cd guidance_allstar && ...` yazan satırlar kökten girildiğini varsayar.
 
 # ============================ YIĞIN ============================
