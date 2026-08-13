@@ -8,6 +8,8 @@
 pymavlink>=2.4.37      # MAVLink: gudum komutu (SET_POSITION_TARGET) + telemetri okuma
 redis>=4.5.0           # surecler arasi kanal (tracker_bbox, komut_yetkisi, ...)
 numpy>=1.21            # MPC cozucu (FISTA), filtreleme, geometri
+filterpy>=1.4.5        # IMM/Kalman hedef durum filtreleri
+scipy>=1.7             # FilterPy sayisal lineer cebir islemleri
 
 # --- Yalniz belirli araclar/senaryolar icin ---
 opencv-python>=4.5     # bbox_to_redis HSV tespiti (SIM). Donanimda IMX500 NN

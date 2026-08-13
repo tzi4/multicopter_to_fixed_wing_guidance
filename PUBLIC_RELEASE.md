@@ -60,6 +60,8 @@ gh repo edit tzi4/savasan_iha_yildizlar \
 
 After publication, verify the README, license detection, Actions run, Security
 policy, issue templates and clone instructions while signed out of GitHub.
+Enable GitHub secret scanning and push protection if they become available for
+the repository after the visibility change.
 
 Do not attach or publish the private history archive as a branch, release asset
 or pull request of the public repository.
