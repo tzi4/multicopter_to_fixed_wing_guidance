@@ -6,7 +6,7 @@
 # donanim icin ortak calisma zamani paketleridir.
 
 pymavlink>=2.4.37      # MAVLink: gudum komutu (SET_POSITION_TARGET) + telemetri okuma
-redis>=4.5.0           # surecler arasi kanal (tracker_bbox, komut_yetkisi, ...)
+redis>=6.4.0           # surecler arasi kanal (tracker_bbox, komut_yetkisi, ...)
 numpy>=1.21            # MPC cozucu (FISTA), filtreleme, geometri
 filterpy>=1.4.5        # IMM/Kalman hedef durum filtreleri
 scipy>=1.7             # FilterPy sayisal lineer cebir islemleri
