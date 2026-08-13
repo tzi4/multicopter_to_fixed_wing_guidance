@@ -5,7 +5,7 @@
 # donanimda ROS KURULMAZ (bkz. DONANIM_GOREV.md). Asagidakiler hem sim hem
 # donanim icin ortak calisma zamani paketleridir.
 
-pymavlink>=2.4.37      # MAVLink: gudum komutu (SET_POSITION_TARGET) + telemetri okuma
+pymavlink==2.4.41      # mavlinkHandler 0.0.16 ile uyumlu MAVLink surumu
 redis>=4.5.0           # surecler arasi kanal (tracker_bbox, komut_yetkisi, ...)
 numpy>=1.21            # MPC cozucu (FISTA), filtreleme, geometri
 filterpy>=1.4.5        # IMM/Kalman hedef durum filtreleri
