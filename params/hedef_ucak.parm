@@ -1,0 +1,27 @@
+# =====================================================================
+# hedef_ucak.parm - hedef sabit kanat (gazebo-plane6 / yildizlar-plane)
+# =====================================================================
+# Yukleme zinciri: gazebo-plane.parm, BU DOSYA (sonda).
+# Icerik bumblebee/params/target.parm'dan tasindi; oradaki olcumler gecerli.
+# ---------------------------------------------------------------------
+
+# 1) TECS_SYNAIRSPEED 1 - AUTO/GUIDED hiz komutlarinin ETKI ETMESI icin sart.
+#    ARSPD_TYPE 0 (Gazebo backend Aircraft::update_dynamics()'i cagirmadigi
+#    icin fdm.airspeed hep 0). SYNAIRSPEED 0 iken AP_TECS airspeed'siz yolu
+#    secer; DO_CHANGE_SPEED (178) ACK=ACCEPTED donse bile ucak trim hizinda
+#    kalir. Olcum (bumblebee, 2026-07-25): syn=0 -> komut 10/15/18/22 m/s,
+#    gerceklesen HEP 20.2; syn=1 -> 9.93 / 15.01 / 17.93 / 21.98.
+TECS_SYNAIRSPEED 1
+
+# 2) AIRSPEED_CRUISE 20 - ArduPlane 4.7'de gazebo-plane.parm'daki
+#    TRIM_ARSPD_CM artik gecersiz bir ad; yazilmazsa fabrika 12 m/s kalir.
+AIRSPEED_CRUISE 20
+
+# 3) AHRS_WIND_MAX 1 - sentetik hava hizi hatasini kirpar.
+#    IAS = |V_gps(NED) - W_EKF3| / EAS2TAS uretildigi icin tek hata kaynagi
+#    EKF3 ruzgar tahmini ve duz bacakta gozlenemez. Kirpma olmadan IAS 20
+#    tutulurken yer hizi 22.05 olabiliyor.
+AHRS_WIND_MAX 1
+
+# 4) ARSPD_TYPE 0 - (1) ve (3)'un gecerliligi buna bagli; aciklik icin.
+ARSPD_TYPE 0

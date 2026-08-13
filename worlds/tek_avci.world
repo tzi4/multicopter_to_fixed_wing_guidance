@@ -1,0 +1,124 @@
+<?xml version="1.0"?> 
+<sdf version="1.5">
+  <world name="default">
+    <!-- tek_avci.world: suru.world'un tek kopterli surumu.
+         iris-2..5 CIKARILDI (her biri 5 Hz kamera render ediyordu).
+         Suru gerektiginde YILDIZ_WORLD=worlds/suru.world ile donulur. -->
+      <!-- FIZIK: arkadasin gonderdigi degerler KORUNDU (500 Hz / 0.002 s / iters 30).
+           2026-08-01'de bumblebee'nin 1000 Hz / 0.001 s / iters 100 ayari A/B
+           denendi: kamera akiskanligina ETKISI YOK (30 Hz kamerada ikisinde de
+           ortanca 33.3 ms, std ~6 ms), ama gzserver CPU'su %64 -> %115'e ciktu.
+           Kamera "donmasi" fizikten degil <update_rate>5</update_rate>'ten
+           geliyordu; o 30'a cekildi. -->
+    <physics type="ode">
+      <ode>
+        <solver>
+          <type>quick</type>
+          <iters>30</iters>
+          <sor>1.0</sor>
+        </solver>
+        <constraints>
+          <cfm>0.0</cfm>
+          <erp>0.2</erp>
+          <contact_max_correcting_vel>0.1</contact_max_correcting_vel>
+          <contact_surface_layer>0.0</contact_surface_layer>
+        </constraints>
+      </ode>
+      <real_time_update_rate>500</real_time_update_rate>
+      <max_step_size>0.002</max_step_size>
+    </physics>
+
+    <scene>
+      <shadows>false</shadows>
+      <ambient>0.4 0.4 0.4 1</ambient>
+      <!-- Arka plan GOK MAVISI. Onceki 0.25 gri idi: <sky> kubbesi
+           sensor kameralarinda yalnizca ufka yakin bir bant olarak
+           render oldugu icin, 30 derece yukari bakan kameranin
+           kadrajinin ust ~%75'i KOYU GRI cikiyordu (olculdu:
+           BGR 18,18,18). Hedef tespitini bozmuyordu ama goruntu
+           "kamera bozuk" gibi duruyordu ve gercekci degildi. -->
+      <background>0.55 0.72 0.92 1</background>
+    </scene>
+
+
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>5000 5000</size>
+            </plane>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1</mu>
+                <mu2>1</mu2>
+              </ode>
+            </friction>
+          </surface>
+        </collision>
+        <visual name="runway">
+          <pose>000 0 0.005 0 0 0</pose>
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>1829 45</size>
+            </plane>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Runway</name>
+            </script>
+          </material>
+        </visual>
+
+        <visual name="grass">
+          <pose>0 0 -0.1 0 0 0</pose>
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>5000 5000</size>
+            </plane>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Grass</name>
+            </script>
+          </material>
+        </visual>
+
+      </link>
+    </model>
+
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <model name="iris-1">
+      <include>
+        <uri>model://suru_drone_1</uri>
+      </include>
+      <pose> 0 0 0 0 0 0</pose>
+    </model>
+    
+    
+
+    
+    
+    <model name="hedef">
+      <include>
+        <uri>model://gazebo-plane6</uri>
+      </include>
+      <pose> 20 0 0 0 0 0</pose>
+    </model>
+    
+  </world>
+</sdf>
+

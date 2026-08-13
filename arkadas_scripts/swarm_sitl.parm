@@ -1,0 +1,19 @@
+# === SWARM SITL PARAM OVERRIDES ===
+# Çoklu araç simülasyonu için gerekli parametreler
+
+# Ana döngüyü 200Hz'e düşür (laptop CPU'su 6 araçta 400Hz'i kaldıramıyor)
+SCHED_LOOP_RATE 200
+
+# 2. ve 3. pusulayı devre dışı bırak (Gazebo SITL'de sadece 1 pusula var)
+# -w olmadan başlatınca "compass 2 not found" hatasını önler
+COMPASS_USE2 0
+COMPASS_PRIO2_ID 0
+COMPASS_USE3 0
+COMPASS_PRIO3_ID 0
+COMPASS_TYPEMASK 2  # Sadece 1. pusula aktif (bitmask: bit1=ikinci pusula devre dışı)
+
+# İvmeölçer tutarsızlık eşiğini SITL için gevşet
+INS_ACC_BODYFIX 2
+
+# Drone GUIDED mod yatay hızı: 18 m/s = 1800 cm/s (varsayılan 1000)
+WPNAV_SPEED 1800

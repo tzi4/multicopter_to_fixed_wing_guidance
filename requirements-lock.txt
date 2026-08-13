@@ -1,0 +1,8 @@
+# Verified CPython 3.8 environment for offline tests and Raspberry Pi tooling.
+# ROS Noetic, Gazebo Classic, Picamera2 and IMX500 packages are installed by
+# the operating system and are intentionally not included here.
+pymavlink==2.4.41
+redis==6.1.1
+numpy==1.24.4
+opencv-python==4.12.0.88
+matplotlib==3.7.5

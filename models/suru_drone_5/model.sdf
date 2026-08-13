@@ -1,0 +1,316 @@
+<?xml version='1.0'?>
+<sdf version="1.6" >
+  <model name="drone_with_camera">
+    <include>
+      <uri>model://iris_base</uri>
+    </include>
+
+    <!-- DIKEY GIMBAL (gimbal branch, 2026-08-05): ayrinti suru_drone_1'de.
+         Komut: /gazebo/default/iris-5/gimbal_tilt_cmd (rad, POZITIF=YUKARI) -->
+    <include>
+      <uri>model://gimbal_small_2d</uri>
+      <name>gimbal_5</name>
+      <pose>0.35 0 0.18 0 0 -1.5707963</pose>
+    </include>
+    <joint name="gimbal_mount" type="fixed">
+      <parent>iris::base_link</parent>
+      <child>gimbal_5::base_link</child>
+    </joint>
+
+    <link name="cam_link">
+      <!-- KAMERA GOVDENIN ONUNDE (2026-08-01 olcumu).
+           ONCEDEN: <pose>0 0 -0.02 0 0 0</pose>, yani kamera iris'in
+           govde merkezinin hemen altindaydi. Kamera ILERI bakarken (pitch 0)
+           sorun yoktu; +30 derece YUKARI cevrilince kadrajin ust %75'ini
+           DRONE'UN KENDI KOLLARI VE PERVANELERI kapatiyordu.
+           Olcum (60 m'de asili, 1280x720, hfov 0.3982, kamera +30 yukari):
+             govde altinda : koyu piksel %75.1  (BGR 18,18,18 - kendi govdesi)
+             0.35 m onde   : koyu piksel  %0.0
+           Belirti: videolarda kadrajin ust ucte ikisi koyu gri, hedef hep
+           alt kenarda; tespit orani %16'da tavan yapiyordu.
+           Gercek aracta da kamera burun/direk montaji olacagi icin bu
+           konum fiziksel olarak da dogru olan. cam_link kutlesi 0.01 kg
+           oldugundan CG etkisi ihmal edilebilir. -->
+      <pose>0.35 0 0.20 0 0 0 </pose>
+      <inertial>
+        <mass>0.01</mass>
+        <!-- 0.001 idi: 10 g kamera icin fiziksel olarak sacma (30 cm jirasyon
+             yaricapi). Sabit eklemliyken onemsizdi; gimbal servosu bu atalet
+             uzerinden govdeye titresim basiyordu (SITL: kalkista takla).
+             1e-5 ise ODE kisit kondisyonunu bozup yerde surekli mikro
+             titresim yaratti (Gyros not calibrated). Orta yol: 1e-4. -->
+        <inertia>
+          <ixx>1e-04</ixx>
+          <iyy>1e-04</iyy>
+          <izz>1e-04</izz>
+        </inertia>
+      </inertial>
+      <!-- <collision name="collision">
+          <geometry>
+            <cylinder>
+              <radius>.005</radius>
+              <length>.018</length>
+            </cylinder>
+          </geometry>
+        </collision> -->
+      <visual name='cam_link'>
+    	<pose>0 0 0 0 1.5707 0</pose>
+    	<geometry>
+    		<cylinder>
+    			<radius>.005</radius>
+    			<length>.018</length>
+    		</cylinder>
+    	</geometry>
+    </visual>
+    <sensor name="cam" type="camera" >
+      <pose>0 0 0 0 -0.0000000 0</pose>
+      <camera>
+        <horizontal_fov>1.1519</horizontal_fov>
+        <image>
+          <width>1280</width>
+          <height>720</height>
+        </image>
+        <clip>
+          <near>0.1</near>
+          <far>4000</far>
+        </clip>
+      </camera>
+      <always_on>1</always_on>
+      <update_rate>30</update_rate>
+      <visualize>true</visualize>
+      <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+        <always_on>false</always_on>
+        <update_rate>30</update_rate>
+        <cameraName>webcam</cameraName>
+        <imageTopicName>image_raw</imageTopicName>
+        <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+        <frameName>camera_link</frameName>
+        <robotNamespace>/drone_5</robotNamespace>
+      </plugin>
+    </sensor>
+    </link>
+    <joint name="camera_mount" type="fixed">
+      <child>cam_link</child>
+      <parent>gimbal_5::tilt_link</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <upper>0</upper>
+          <lower>0</lower>
+        </limit>
+      </axis>
+    </joint>
+
+ 
+
+    <!-- plugins -->
+    <plugin name="rotor_0_blade_1" filename="libLiftDragPlugin.so">
+      <a0>0.3</a0>
+      <alpha_stall>1.4</alpha_stall>
+      <cla>4.2500</cla>
+      <cda>0.10</cda>
+      <cma>0.00</cma>
+      <cla_stall>-0.025</cla_stall>
+      <cda_stall>0.0</cda_stall>
+      <cma_stall>0.0</cma_stall>
+      <area>0.002</area>
+      <air_density>1.2041</air_density>
+      <cp>0.084 0 0</cp>
+      <forward>0 1 0</forward>
+      <upward>0 0 1</upward>
+      <link_name>iris::rotor_0</link_name>
+    </plugin>
+    <plugin name="rotor_0_blade_2" filename="libLiftDragPlugin.so">
+      <a0>0.3</a0>
+      <alpha_stall>1.4</alpha_stall>
+      <cla>4.2500</cla>
+      <cda>0.10</cda>
+      <cma>0.00</cma>
+      <cla_stall>-0.025</cla_stall>
+      <cda_stall>0.0</cda_stall>
+      <cma_stall>0.0</cma_stall>
+      <area>0.002</area>
+      <air_density>1.2041</air_density>
+      <cp>-0.084 0 0</cp>
+      <forward>0 -1 0</forward>
+      <upward>0 0 1</upward>
+      <link_name>iris::rotor_0</link_name>
+    </plugin>
+
+    <plugin name="rotor_1_blade_1" filename="libLiftDragPlugin.so">
+      <a0>0.3</a0>
+      <alpha_stall>1.4</alpha_stall>
+      <cla>4.2500</cla>
+      <cda>0.10</cda>
+      <cma>0.00</cma>
+      <cla_stall>-0.025</cla_stall>
+      <cda_stall>0.0</cda_stall>
+      <cma_stall>0.0</cma_stall>
+      <area>0.002</area>
+      <air_density>1.2041</air_density>
+      <cp>0.084 0 0</cp>
+      <forward>0 1 0</forward>
+      <upward>0 0 1</upward>
+      <link_name>iris::rotor_1</link_name>
+    </plugin>
+    <plugin name="rotor_1_blade_2" filename="libLiftDragPlugin.so">
+      <a0>0.3</a0>
+      <alpha_stall>1.4</alpha_stall>
+      <cla>4.2500</cla>
+      <cda>0.10</cda>
+      <cma>0.00</cma>
+      <cla_stall>-0.025</cla_stall>
+      <cda_stall>0.0</cda_stall>
+      <cma_stall>0.0</cma_stall>
+      <area>0.002</area>
+      <air_density>1.2041</air_density>
+      <cp>-0.084 0 0</cp>
+      <forward>0 -1 0</forward>
+      <upward>0 0 1</upward>
+      <link_name>iris::rotor_1</link_name>
+    </plugin>
+
+    <plugin name="rotor_2_blade_1" filename="libLiftDragPlugin.so">
+      <a0>0.3</a0>
+      <alpha_stall>1.4</alpha_stall>
+      <cla>4.2500</cla>
+      <cda>0.10</cda>
+      <cma>0.00</cma>
+      <cla_stall>-0.025</cla_stall>
+      <cda_stall>0.0</cda_stall>
+      <cma_stall>0.0</cma_stall>
+      <area>0.002</area>
+      <air_density>1.2041</air_density>
+      <cp>0.084 0 0</cp>
+      <forward>0 -1 0</forward>
+      <upward>0 0 1</upward>
+      <link_name>iris::rotor_2</link_name>
+    </plugin>
+    <plugin name="rotor_2_blade_2" filename="libLiftDragPlugin.so">
+      <a0>0.3</a0>
+      <alpha_stall>1.4</alpha_stall>
+      <cla>4.2500</cla>
+      <cda>0.10</cda>
+      <cma>0.00</cma>
+      <cla_stall>-0.025</cla_stall>
+      <cda_stall>0.0</cda_stall>
+      <cma_stall>0.0</cma_stall>
+      <area>0.002</area>
+      <air_density>1.2041</air_density>
+      <cp>-0.084 0 0</cp>
+      <forward>0 1 0</forward>
+      <upward>0 0 1</upward>
+      <link_name>iris::rotor_2</link_name>
+    </plugin>
+
+    <plugin name="rotor_3_blade_1" filename="libLiftDragPlugin.so">
+      <a0>0.3</a0>
+      <alpha_stall>1.4</alpha_stall>
+      <cla>4.2500</cla>
+      <cda>0.10</cda>
+      <cma>0.00</cma>
+      <cla_stall>-0.025</cla_stall>
+      <cda_stall>0.0</cda_stall>
+      <cma_stall>0.0</cma_stall>
+      <area>0.002</area>
+      <air_density>1.2041</air_density>
+      <cp>0.084 0 0</cp>
+      <forward>0 -1 0</forward>
+      <upward>0 0 1</upward>
+      <link_name>iris::rotor_3</link_name>
+    </plugin>
+    <plugin name="rotor_3_blade_2" filename="libLiftDragPlugin.so">
+      <a0>0.3</a0>
+      <alpha_stall>1.4</alpha_stall>
+      <cla>4.2500</cla>
+      <cda>0.10</cda>
+      <cma>0.00</cma>
+      <cla_stall>-0.025</cla_stall>
+      <cda_stall>0.0</cda_stall>
+      <cma_stall>0.0</cma_stall>
+      <area>0.002</area>
+      <air_density>1.2041</air_density>
+      <cp>-0.084 0 0</cp>
+      <forward>0 1 0</forward>
+      <upward>0 0 1</upward>
+      <link_name>iris::rotor_3</link_name>
+    </plugin>
+    <plugin name="arducopter_plugin" filename="libArduPilotPlugin.so">
+      <fdm_addr>127.0.0.1</fdm_addr>
+      <fdm_port_in>9042</fdm_port_in>
+      <fdm_port_out>9043</fdm_port_out>
+      <!--
+          Require by APM :
+          Only change model and gazebo from XYZ to XY-Z coordinates
+      -->
+      <modelXYZToAirplaneXForwardZDown>0 0 0 3.141593 0 0</modelXYZToAirplaneXForwardZDown>
+      <gazeboXYZToNED>0 0 0 3.141593 0 0</gazeboXYZToNED>
+      <imuName>iris::iris/imu_link::imu_sensor</imuName>
+      <connectionTimeoutMaxCount>5</connectionTimeoutMaxCount>
+      <control channel="0">
+      <!--
+          incoming control command [0, 1]
+          so offset it by 0 to get [0, 1]
+          and divide max target by 1.
+          offset = 0
+          multiplier = 838 max rpm / 1 = 838
+        -->
+        <type>VELOCITY</type>
+        <offset>0</offset>
+        <p_gain>0.20</p_gain>
+        <i_gain>0</i_gain>
+        <d_gain>0</d_gain>
+        <i_max>0</i_max>
+        <i_min>0</i_min>
+        <cmd_max>2.5</cmd_max>
+        <cmd_min>-2.5</cmd_min>
+        <jointName>iris::rotor_0_joint</jointName>
+        <multiplier>838</multiplier>
+        <controlVelocitySlowdownSim>1</controlVelocitySlowdownSim>
+      </control>
+      <control channel="1">
+        <type>VELOCITY</type>
+        <offset>0</offset>
+        <p_gain>0.20</p_gain>
+        <i_gain>0</i_gain>
+        <d_gain>0</d_gain>
+        <i_max>0</i_max>
+        <i_min>0</i_min>
+        <cmd_max>2.5</cmd_max>
+        <cmd_min>-2.5</cmd_min>
+        <jointName>iris::rotor_1_joint</jointName>
+        <multiplier>838</multiplier>
+        <controlVelocitySlowdownSim>1</controlVelocitySlowdownSim>
+      </control>
+      <control channel="2">
+        <type>VELOCITY</type>
+        <offset>0</offset>
+        <p_gain>0.20</p_gain>
+        <i_gain>0</i_gain>
+        <d_gain>0</d_gain>
+        <i_max>0</i_max>
+        <i_min>0</i_min>
+        <cmd_max>2.5</cmd_max>
+        <cmd_min>-2.5</cmd_min>
+        <jointName>iris::rotor_2_joint</jointName>
+        <multiplier>-838</multiplier>
+        <controlVelocitySlowdownSim>1</controlVelocitySlowdownSim>
+      </control>
+      <control channel="3">
+        <type>VELOCITY</type>
+        <offset>0</offset>
+        <p_gain>0.20</p_gain>
+        <i_gain>0</i_gain>
+        <d_gain>0</d_gain>
+        <i_max>0</i_max>
+        <i_min>0</i_min>
+        <cmd_max>2.5</cmd_max>
+        <cmd_min>-2.5</cmd_min>
+        <jointName>iris::rotor_3_joint</jointName>
+        <multiplier>-838</multiplier>
+        <controlVelocitySlowdownSim>1</controlVelocitySlowdownSim>
+      </control>
+    </plugin>
+
+  </model>
+</sdf>

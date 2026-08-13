@@ -1,0 +1,88 @@
+# =====================================================================
+# swarm_copter.parm - kopter SITL ek parametreleri
+# =====================================================================
+# Yukleme zinciri: copter.parm, gazebo-iris.parm, BU DOSYA (sonda).
+# ---------------------------------------------------------------------
+
+# --- ORTAM SOZLESMESI (arkadas_scripts/swarm_sitl.parm'dan) ---------
+# 6 arac + Gazebo ayni CPU'da: 400 Hz ana dongu laptopta yetismiyor.
+SCHED_LOOP_RATE 200
+# Gazebo iris modelinde TEK pusula var; 2./3. pusula aranirsa pre-arm takilir.
+COMPASS_USE2 0
+COMPASS_PRIO2_ID 0
+COMPASS_USE3 0
+COMPASS_PRIO3_ID 0
+COMPASS_TYPEMASK 2
+# Ivmeolcer tutarsizlik esigini SITL icin gevset.
+INS_ACC_BODYFIX 2
+
+# --- ROLL 7-10 Hz LIMIT CEVRIMI DUZELTMESI (olculdu 2026-08-08) ------
+# Gazebo iris_base modeli fiziksel olarak tutarsiz: roll atalet ixx=0.008,
+# pitch iyy=0.015 iken motor kollari TERSI yonde asimetrik (y=+-0.22 roll
+# kolu, x=+-0.13 pitch kolu). Roll ekseninin plant kazanci pitch'in ~3.2
+# kati; ArduCopter ise ikisine de AYNI ATC_RAT_* gain'ini uyguluyor.
+# Sonuc: roll dogustan marjinal kararli. Ustune SCHED_LOOP_RATE 200 (400
+# yerine) faz gecikmesi ekleyince limit cevrime giriyor.
+#   Olculen (hover, ALT_HOLD, canli SITL):
+#     D=0.0036 (stok) -> roll 15.87 dps RMS @7.5 Hz, aci 0.187 deg
+#     D=0.0010        -> roll  0.60 dps RMS,         aci 0.010 deg  (26x)
+#   Pitch her iki halde de temiz (0.2-0.5 dps) - eksen asimetrisinin kaniti.
+# NOT: Bu titresim ilk commit'ten beri vardi (08-01 loglarinda 9.4 Hz,
+# 11.2 dps). Gimbal SEBEP DEGIL; sadece kutle ekleyip frekansi 9.4->7.5
+# Hz'e cekti. Orijinal ../gudum.sh'te yoktu cunku o hic parm yuklemiyor,
+# yani SCHED_LOOP_RATE varsayilan 400'de kaliyordu.
+ATC_RAT_RLL_D 0.001
+
+# =====================================================================
+# AGRESIF UCUS ZARFI - "yapabildigimiz kadar hizli"
+# =====================================================================
+# Her satirin yanindaki [min..max] ArduPilot parametre tanimindaki gecerli
+# araliktir (libraries/AC_WPNav/AC_WPNav.cpp, AC_Loiter.cpp,
+# AC_AttitudeControl/AC_PosControl.cpp, ArduCopter/Parameters.cpp).
+# HIZ TAVANI 2026-08-05'te 20 -> 24 m/s YUKSELTILDI. Gerekce: GERCEK
+# DONANIM zaten 24 m/s ile ucuyor (formation_KILLER.py NAV_SPEED=24.0 ->
+# WPNAV_SPEED 2400, ATTACK_SPEED_MPS=24.0), yani sim gercek dronelardan
+# YAVAS kaliyordu. 2000, ArduPilot'un metadata'daki TAVSIYE araligidir
+# (@Range), sert bir sinir degil -- gercek araca 2400 yazilabildigi
+# ucusla dogrulandi. Onemi: hedef ucak 20 m/s seyirde; 20/20 hiz
+# PARITESINDE kopter kapatamiyordu (tum 'yakalanamaz' bulgularinin koku
+# buydu). 24 m/s ile %20 kapanma payi dogar.
+
+# --- Yatay hiz / ivme ---
+WPNAV_SPEED 3500          # -> 35 m/s. OLCULDU: 2400 araca yazildi ve 24.15 m/s
+                          # ulasildi, yatma yalniz 18.5 deg (tavan 60), irtifa kaybi
+                          # 0.1 m -> bol pay vardi. Gercek ucusta 35 m/s gorulmus.
+WPNAV_ACCEL 500           # [50..500]  cm/s2 -> 5 m/s2 (TAVAN)
+LOIT_SPEED 3500           # [20..3500] cm/s  - GUIDED disi modlar da yavas kalmasin
+LOIT_ACC_MAX 981          # [100..981] cm/s2 (TAVAN)
+
+# --- Dikey hiz / ivme ---
+WPNAV_SPEED_UP 1000       # [10..1000] cm/s -> 10 m/s (TAVAN)
+WPNAV_SPEED_DN 500        # [10..500]  cm/s ->  5 m/s (TAVAN)
+WPNAV_ACCEL_Z 500         # [50..500]  cm/s2 (TAVAN)
+PILOT_SPEED_UP 1000
+PILOT_SPEED_DN 500
+
+# --- Jerk (hiz komutlarina ne kadar sert tepki verilecegi) ---
+PSC_JERK_XY 20            # [1..20]  m/s3 (TAVAN)
+PSC_JERK_Z 50             # [5..50]  m/s3 (TAVAN)
+
+# --- Yatma acisi ---
+# ANGLE_MAX araligi [1000..8000] cdeg. 8000 (80 derece) YAZILMADI: o yatmayi
+# tutmak icin gereken itki 1/cos(80) = 5.8 x asili-kalma itkisidir, iris SITL
+# modelinin itki/agirlik orani ~2. Ulasilamayan bir limit yazmak kopteri
+# yatmaya calisirken irtifa kaybettirir. cos(60) = 0.5 -> 2x, yani 6000
+# modelin FIZIKSEL tavaninin tam ustu; olcum sonrasi gerekirse dusurulur.
+ANGLE_MAX 6000            # [1000..8000] cdeg -> 60 derece
+
+# --- Yaw (burnu hedefe cevirme hizi) ---
+# YATAY eksende gimbal YOK (2026-08-05 gimbal dali: gimbal TEK EKSEN, yalnizca
+# tilt/dikey). Yani yatay kadraj hala tamamen airframe yaw'ina bagli: hedefi
+# kadrajda tutmak icin burnun kerterizi yakalamasi sart; 120 m'lik gecislerde
+# kerteriz hizi ~10 derece/s. Bu gerekce yaw icin AYNEN gecerli.
+# DIKEY eksen icin ARTIK GECERLI DEGIL: kamera kendini stabilize eden fiziksel
+# tilt gimbalinde; govde pitch'i (olculdu: +-35 deg) goruntuye yansimiyor
+# (max |0.65| deg). Dikey kadraji pitch degil, tilt komutu belirler
+# (scripts/standoff_geom.sh -> YILDIZ_TILT). bkz. NOTLAR_GIMBAL.md
+ATC_SLEW_YAW 18000        # [500..18000] cdeg/s -> 180 derece/s (TAVAN)
+ATC_ACCEL_Y_MAX 72000     # [0..72000] cdeg/s2 (TAVAN)

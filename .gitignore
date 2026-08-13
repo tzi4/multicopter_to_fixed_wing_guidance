@@ -1,0 +1,45 @@
+# --- calisma zamani / buyuk uretimler (repoya girmez) ---
+# ucus kayit videolari (50 MB - 1.6 GB arasi; kucuk KANIT videolari
+# run/kanit/ altindadir ve repoya girer)
+videos/
+# SITL calisma durumu: tlog + DataFlash BIN, koser koser GB
+/run/
+run/sitl*/
+run/ros/
+run/pids
+run/launcher.lock
+# her kosuda yeniden uretilen supervisor loglari
+logs/
+plugins/hummingbird_bridge/build/
+__pycache__/
+*.pyc
+
+# Yerel deney/otopilot durumu: kaynak değildir, yeniden üretilir.
+run/denemeler/
+run/*.log
+run/selected_model
+eeprom.bin
+terrain/*.DAT
+
+# Yerel kamera kabul fotoğrafları kişi/yüz ve çalışma ortamı içerebilir.
+system_static_tests/
+
+# Ham gerçek uçuş/telemetri verisi public kaynak deposuna girmez.
+IRL_Tests/
+*.tlog
+*.rlog
+*.ulg
+all_star_env.zip
+
+# Yerel kimlik bilgileri ve anahtarlar.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+secrets.json
+
+# Editör/ajan yerel çalışma ayarları.
+.claude/
+old_los_codes/

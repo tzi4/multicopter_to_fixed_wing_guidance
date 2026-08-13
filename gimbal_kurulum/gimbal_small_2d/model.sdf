@@ -1,0 +1,142 @@
+<?xml version='1.0'?>
+<sdf version='1.6'>
+  <model name='gimbal_small_2d'>
+    <pose>0 0 0.18 0 0 0</pose>
+
+    <link name='base_link'>
+       <inertial>
+        <!-- orijinal 0.2 kg idi; drone burnunda 0.35 m onde bu kutle kontrol
+             otoritesini bozuyordu (kullanici bildirdi) -> ihmal edilebilir seviye -->
+        <mass>0.005</mass>
+        <inertia>
+          <ixx>1e-05</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1e-05</iyy>
+          <iyz>0</iyz>
+          <izz>1e-05</izz>
+        </inertia>
+      </inertial>
+
+      <!-- GORSELLER KALDIRILDI (2026-08-05, kullanici istegi): stabilize
+           kamera govdeye gore donunce (ornegin frenlemede burun yukari)
+           gimbalin catal kollari kadraja giriyordu. Kamera icin gorunmez;
+           CARPISMALAR DURUYOR (araca carpma testleri etkilenmez). -->
+
+      <!-- Carpisma geometrileri ORIJINAL halinde (kullanici istegi: baska
+           araca carpma testleri icin gerekli). NOT: bu kutu yere degmesin
+           diye suru_drone montaj yuksekligi z=0.18'e alindi. -->
+      <collision name='base_col'>
+        <pose>0.01 0.075 -0.025 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1 0.05 0.15</size>
+          </box>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>1</mu>
+              <mu2>1</mu2>
+              <fdir1>0 0 0</fdir1>
+              <slip1>0</slip1>
+              <slip2>0</slip2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+    </link>
+
+    <link name='tilt_link'>
+       <inertial>
+        <mass>0.002</mass>
+        <inertia>
+          <ixx>1e-05</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1e-05</iyy>
+          <iyz>0</iyz>
+          <izz>1e-05</izz>
+        </inertia>
+      </inertial>
+     <!-- tilt gorseli kaldirildi (kadraj isgali); collision duruyor -->
+     <collision name='tilt_col'>
+        <pose>0 0 -0.005 0 0 0</pose>
+        <geometry>
+         <mesh>
+           <scale>0.001 0.001 0.001</scale>
+           <uri>model://gimbal_small_2d/meshes/tilt.dae</uri>
+         </mesh>
+        </geometry>
+      </collision>
+
+
+      <!-- kamera silindiri gorseli kaldirildi; collision duruyor -->
+      <collision name='camera_col'>
+        <pose>0 0 0.02 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.025</radius>
+            <length>0.050</length>
+          </cylinder>
+        </geometry>
+     </collision>
+
+
+      <sensor name="camera" type="camera">
+        <pose>0 0 0 -1.57 -1.57 0</pose>
+        <camera>
+          <horizontal_fov>2.0</horizontal_fov>
+          <image>
+            <width>640</width>
+            <height>480</height>
+          </image>
+          <clip>
+            <near>0.05</near>
+            <far>15000</far>
+          </clip>
+        </camera>
+        <!-- suru_drone entegrasyonu: asil kamera drone'un webcam sensoru
+             (tilt_link'e kaynakli cam_link). Bu yerlesik kamera 5 drone'da
+             bosuna render olmasin diye kapali. -->
+        <always_on>0</always_on>
+        <update_rate>10</update_rate>
+        <visualize>0</visualize>
+      </sensor>
+
+    </link>
+
+    <joint name='tilt_joint' type='revolute'>
+       <parent>base_link</parent>
+       <child>tilt_link</child>
+
+      <!-- implicit_spring_damper + damping KALDIRILDI: ikisi ODE eklem
+           motorunu kullaniyor ve plugin'in hiz-servo komutunu her adimda
+           "hiz=0" ile ezip eklemi kilitliyordu (olculdu). Sonumlemeyi
+           servo sagliyor. -->
+      <axis>
+        <xyz>1 0 0</xyz>
+        <use_parent_model_frame>1</use_parent_model_frame>
+        <limit>
+          <!-- dikey gimbal calisma araligi +-90 deg (orijinal -0.1..pi idi;
+               montaj yonelimimizde asagi/yukari simetrik aralik gerekiyor) -->
+          <lower>-1.5707963</lower>
+          <upper>1.5707963</upper>
+          <effort>10</effort>
+          <velocity>-1</velocity>
+        </limit>
+      </axis>
+      <pose>0 0 0.02 0 0 0</pose>
+    </joint>
+
+    <plugin name="gimbal_small_2d" filename="libGimbalSmall2dPlugin.so">
+      <joint>tilt_joint</joint>
+      <!-- stabilize: komut, kameranin DUNYA-cercevesi pitch'idir; govde
+           pitch yapsa da bakis sabit kalir (gercek gimbal davranisi).
+           camera_axis: kamera optik ekseninin tilt_link YEREL eksenlerindeki
+           yonu (suru_drone montajinda tilt_link -90 yaw'li -> +Y). -->
+      <stabilize>1</stabilize>
+      <camera_axis>0 1 0</camera_axis>
+    </plugin>
+  </model>
+</sdf>

@@ -1,0 +1,16 @@
+* text=auto
+*.sh text eol=lf
+*.py text eol=lf
+*.md text eol=lf
+
+# Private/raw evidence and generated state must never enter a public source
+# archive produced with `git archive`.
+/IRL_Tests/ export-ignore
+/run/ export-ignore
+/logs/ export-ignore
+/videos/ export-ignore
+/system_static_tests/ export-ignore
+/all_star_env.zip export-ignore
+/eeprom.bin export-ignore
+/.claude/ export-ignore
+/old_los_codes/ export-ignore

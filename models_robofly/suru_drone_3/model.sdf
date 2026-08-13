@@ -1,0 +1,300 @@
+<?xml version='1.0' encoding='utf-8'?>
+<sdf version="1.6">
+  <model name="drone_with_camera">
+    <include>
+      <uri>model://robofly</uri>
+      <pose>0 0 0 0 0 0</pose>
+    </include>
+
+    <!-- ArduPilot Gazebo Classic eklentisinin beklediği standart IMU.
+         Matrice'in PX4 eklentisi yerine aynı Gazebo IMU sözleşmesini sağlar. -->
+    <link name="matrice_imu">
+      <pose>0 0 0.03 0 0 0</pose>
+      <inertial>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>1e-06</ixx>
+          <iyy>1e-06</iyy>
+          <izz>1e-06</izz>
+        </inertia>
+      </inertial>
+      <sensor name="imu_sensor" type="imu">
+        <pose>0 0 0 3.141593 0 0</pose>
+        <always_on>1</always_on>
+        <update_rate>1000</update_rate>
+      </sensor>
+    </link>
+    <joint name="matrice_imu_mount" type="fixed">
+      <parent>robofly::base_link</parent>
+      <child>matrice_imu</child>
+    </joint>
+
+    <!-- DIKEY GIMBAL (gimbal branch, 2026-08-05): kamera artik govdeye sabit
+         degil, gimbal_small_2d'nin tek eksenli tilt eklemine bagli.
+         Yaw -90 ile tilt ekseni govde Y'sine oturur: POZITIF komut = YUKARI.
+         Plugin UST modele baglandigi icin topic adi dunyadaki model adindan
+         gelir (worlds/*.world -> iris-N):
+         Komut topic'i: /gazebo/default/iris-3/gimbal_tilt_cmd (rad, GzString)
+         Durum topic'i: /gazebo/default/iris-3/gimbal_tilt_status
+         OLCUM ZINCIRI: TAMAMLANDI (2026-08-05). yildizlar_gimbal.py artik
+         sabit montaj yerine CANLI eklem acisiyla calisiyor; aciyi
+         bbox_to_redis.py (tilt bayragi) gimbal_tilt_status'tan, o bayatsa
+         tilt komutundan alir. Yani de-rotasyon yalnizca ROLL + canli eklem
+         isi yapar; govde PITCH'i goruntuye yansimadigi icin zincirden cikti.
+         Sabit-montaj yolu yalnizca "no-tilt" bayragiyla ayakta. bkz.
+         NOTLAR_GIMBAL.md -->
+    <include>
+      <uri>model://gimbal_small_2d</uri>
+      <name>gimbal_1</name>
+      <pose>0.35 0 0.18 0 0 -1.5707963</pose>
+    </include>
+    <joint name="gimbal_mount" type="fixed">
+      <parent>robofly::base_link</parent>
+      <child>gimbal_1::base_link</child>
+    </joint>
+
+    <link name="cam_link">
+      <!-- KAMERA GOVDENIN ONUNDE (2026-08-01 olcumu).
+           ONCEDEN: <pose>0 0 -0.02 0 0 0</pose>, yani kamera iris'in
+           govde merkezinin hemen altindaydi. Kamera ILERI bakarken (pitch 0)
+           sorun yoktu; +30 derece YUKARI cevrilince kadrajin ust %75'ini
+           DRONE'UN KENDI KOLLARI VE PERVANELERI kapatiyordu.
+           Olcum (60 m'de asili, 1280x720, hfov 0.3982, kamera +30 yukari):
+             govde altinda : koyu piksel %75.1  (BGR 18,18,18 - kendi govdesi)
+             0.35 m onde   : koyu piksel  %0.0
+           Belirti: videolarda kadrajin ust ucte ikisi koyu gri, hedef hep
+           alt kenarda; tespit orani %16'da tavan yapiyordu.
+           Gercek aracta da kamera burun/direk montaji olacagi icin bu
+           konum fiziksel olarak da dogru olan. cam_link kutlesi 0.01 kg
+           oldugundan CG etkisi ihmal edilebilir. -->
+      <!-- GIMBAL ENTEGRASYONU: cam_link tilt pivotunun tam ustunde
+           (gimbal 0.35,0,0.18 + eklem pivotu z+0.02; 0.18 = carpisma kutusu yere degmesin) — kamera pivotta
+           oldugu icin tilt donusu oteleme yaratmaz. -->
+      <pose>0.35 0 0.20 0 0 0 </pose>
+      <inertial>
+        <mass>0.01</mass>
+        <!-- 0.001 idi: 10 g kamera icin fiziksel olarak sacma (30 cm jirasyon
+             yaricapi). Sabit eklemliyken onemsizdi; gimbal servosu bu atalet
+             uzerinden govdeye titresim basiyordu (SITL: kalkista takla).
+             1e-5 ise ODE kisit kondisyonunu bozup yerde surekli mikro
+             titresim yaratti (Gyros not calibrated). Orta yol: 1e-4. -->
+        <inertia>
+          <ixx>1e-04</ixx>
+          <iyy>1e-04</iyy>
+          <izz>1e-04</izz>
+        </inertia>
+      </inertial>
+      <!-- <collision name="collision">
+          <geometry>
+            <cylinder>
+              <radius>.005</radius>
+              <length>.018</length>
+            </cylinder>
+          </geometry>
+        </collision> -->
+      <visual name="cam_link">
+      <pose>0 0 0 0 1.5707 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>.005</radius>
+          <length>.018</length>
+        </cylinder>
+      </geometry>
+    </visual>
+    <sensor name="cam" type="camera">
+      <pose>0 0 0 0 -0.0000000 0</pose>
+      <camera>
+        <horizontal_fov>1.1519</horizontal_fov>
+        <image>
+          <width>1280</width>
+          <height>720</height>
+        </image>
+        <clip>
+          <near>0.1</near>
+          <far>4000</far>
+        </clip>
+      </camera>
+      <always_on>1</always_on>
+      <update_rate>30</update_rate>
+      <visualize>true</visualize>
+      <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+        <always_on>true</always_on>
+        <update_rate>30</update_rate>
+        <cameraName>webcam</cameraName>
+        <imageTopicName>image_raw</imageTopicName>
+        <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+        <frameName>camera_link</frameName>
+        <robotNamespace>/drone_3</robotNamespace>
+      </plugin>
+    </sensor>
+    </link>
+    <joint name="camera_mount" type="fixed">
+      <child>cam_link</child>
+      <parent>gimbal_1::tilt_link</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <upper>0</upper>
+          <lower>0</lower>
+        </limit>
+      </axis>
+    </joint>
+
+    <!-- Command-only joints used by the adapter.  They have no collision or
+         visual and add only 4 micrograms total to the physical model. -->
+    <link name="motor_cmd_0"><gravity>false</gravity><inertial><mass>1e-6</mass><inertia><ixx>1e-10</ixx><iyy>1e-10</iyy><izz>1e-10</izz></inertia></inertial></link>
+    <link name="motor_cmd_1"><gravity>false</gravity><inertial><mass>1e-6</mass><inertia><ixx>1e-10</ixx><iyy>1e-10</iyy><izz>1e-10</izz></inertia></inertial></link>
+    <link name="motor_cmd_2"><gravity>false</gravity><inertial><mass>1e-6</mass><inertia><ixx>1e-10</ixx><iyy>1e-10</iyy><izz>1e-10</izz></inertia></inertial></link>
+    <link name="motor_cmd_3"><gravity>false</gravity><inertial><mass>1e-6</mass><inertia><ixx>1e-10</ixx><iyy>1e-10</iyy><izz>1e-10</izz></inertia></inertial></link>
+    <joint name="motor_cmd_joint_0" type="revolute"><parent>robofly::base_link</parent><child>motor_cmd_0</child><axis><xyz>0 0 1</xyz></axis></joint>
+    <joint name="motor_cmd_joint_1" type="revolute"><parent>robofly::base_link</parent><child>motor_cmd_1</child><axis><xyz>0 0 1</xyz></axis></joint>
+    <joint name="motor_cmd_joint_2" type="revolute"><parent>robofly::base_link</parent><child>motor_cmd_2</child><axis><xyz>0 0 1</xyz></axis></joint>
+    <joint name="motor_cmd_joint_3" type="revolute"><parent>robofly::base_link</parent><child>motor_cmd_3</child><axis><xyz>0 0 1</xyz></axis></joint>
+
+    <!-- plugins -->
+    <!-- PX4 upstream motor plugins are placed at this wrapper level so the
+         legacy ArduPilot wrapper can address the included rotor links. Only
+         the scoped joint/link names differ from the upstream SDF. -->
+    <plugin name="rotor_0_motor_model" filename="libgazebo_motor_model.so">
+      <robotNamespace />
+      <jointName>robofly::prop_0_joint</jointName>
+      <linkName>robofly::prop_0_link</linkName>
+      <turningDirection>ccw</turningDirection>
+      <timeConstantUp>0.008333333333333333</timeConstantUp><timeConstantDown>0.0125</timeConstantDown>
+      <maxRotVelocity>1</maxRotVelocity><motorConstant>14.291</motorConstant>
+      <momentConstant>0.016</momentConstant>
+      <commandSubTopic>/gazebo/command/motor_speed</commandSubTopic><motorNumber>0</motorNumber>
+      <rotorDragCoefficient>0.001</rotorDragCoefficient>
+      <rollingMomentCoefficient>1e-6</rollingMomentCoefficient>
+      <motorSpeedPubTopic>/motor_speed/0</motorSpeedPubTopic><rotorVelocitySlowdownSim>0.0159236</rotorVelocitySlowdownSim>
+    </plugin>
+    <plugin name="rotor_1_motor_model" filename="libgazebo_motor_model.so">
+      <robotNamespace />
+      <jointName>robofly::prop_1_joint</jointName>
+      <linkName>robofly::prop_1_link</linkName>
+      <turningDirection>ccw</turningDirection>
+      <timeConstantUp>0.008333333333333333</timeConstantUp><timeConstantDown>0.0125</timeConstantDown>
+      <maxRotVelocity>1</maxRotVelocity><motorConstant>14.291</motorConstant>
+      <momentConstant>0.016</momentConstant>
+      <commandSubTopic>/gazebo/command/motor_speed</commandSubTopic><motorNumber>1</motorNumber>
+      <rotorDragCoefficient>0.001</rotorDragCoefficient>
+      <rollingMomentCoefficient>1e-6</rollingMomentCoefficient>
+      <motorSpeedPubTopic>/motor_speed/1</motorSpeedPubTopic><rotorVelocitySlowdownSim>0.0159236</rotorVelocitySlowdownSim>
+    </plugin>
+    <plugin name="rotor_2_motor_model" filename="libgazebo_motor_model.so">
+      <robotNamespace />
+      <jointName>robofly::prop_2_joint</jointName>
+      <linkName>robofly::prop_2_link</linkName>
+      <turningDirection>cw</turningDirection>
+      <timeConstantUp>0.008333333333333333</timeConstantUp><timeConstantDown>0.0125</timeConstantDown>
+      <maxRotVelocity>1</maxRotVelocity><motorConstant>14.291</motorConstant>
+      <momentConstant>0.016</momentConstant>
+      <commandSubTopic>/gazebo/command/motor_speed</commandSubTopic><motorNumber>2</motorNumber>
+      <rotorDragCoefficient>0.001</rotorDragCoefficient>
+      <rollingMomentCoefficient>1e-6</rollingMomentCoefficient>
+      <motorSpeedPubTopic>/motor_speed/2</motorSpeedPubTopic><rotorVelocitySlowdownSim>0.0159236</rotorVelocitySlowdownSim>
+    </plugin>
+    <plugin name="rotor_3_motor_model" filename="libgazebo_motor_model.so">
+      <robotNamespace />
+      <jointName>robofly::prop_3_joint</jointName>
+      <linkName>robofly::prop_3_link</linkName>
+      <turningDirection>cw</turningDirection>
+      <timeConstantUp>0.008333333333333333</timeConstantUp><timeConstantDown>0.0125</timeConstantDown>
+      <maxRotVelocity>1</maxRotVelocity><motorConstant>14.291</motorConstant>
+      <momentConstant>0.016</momentConstant>
+      <commandSubTopic>/gazebo/command/motor_speed</commandSubTopic><motorNumber>3</motorNumber>
+      <rotorDragCoefficient>0.001</rotorDragCoefficient>
+      <rollingMomentCoefficient>1e-6</rollingMomentCoefficient>
+      <motorSpeedPubTopic>/motor_speed/3</motorSpeedPubTopic><rotorVelocitySlowdownSim>0.0159236</rotorVelocitySlowdownSim>
+    </plugin>
+    <plugin name="arducopter_plugin" filename="libArduPilotPlugin.so">
+      <fdm_addr>127.0.0.1</fdm_addr>
+      <fdm_port_in>9022</fdm_port_in>
+      <fdm_port_out>9023</fdm_port_out>
+      <!--
+          Require by APM :
+          Only change model and gazebo from XYZ to XY-Z coordinates
+      -->
+      <modelXYZToAirplaneXForwardZDown>0 0 0 3.141593 0 0</modelXYZToAirplaneXForwardZDown>
+      <gazeboXYZToNED>0 0 0 3.141593 0 0</gazeboXYZToNED>
+      <imuName>matrice_imu::imu_sensor</imuName>
+      <connectionTimeoutMaxCount>5</connectionTimeoutMaxCount>
+      <control channel="0">
+      <!--
+          incoming control command [0, 1]
+          so offset it by 0 to get [0, 1]
+          and divide max target by 1.
+          offset = 0
+          multiplier = 838 max rpm / 1 = 838
+        -->
+        <type>VELOCITY</type>
+        <useForce>false</useForce>
+        <offset>0</offset>
+        <p_gain>0.20</p_gain>
+        <i_gain>0</i_gain>
+        <d_gain>0</d_gain>
+        <i_max>0</i_max>
+        <i_min>0</i_min>
+        <cmd_max>2.5</cmd_max>
+        <cmd_min>-2.5</cmd_min>
+        <jointName>motor_cmd_joint_0</jointName>
+        <multiplier>1</multiplier>
+        <controlVelocitySlowdownSim>1</controlVelocitySlowdownSim>
+      </control>
+      <control channel="1">
+        <type>VELOCITY</type>
+        <useForce>false</useForce>
+        <offset>0</offset>
+        <p_gain>0.20</p_gain>
+        <i_gain>0</i_gain>
+        <d_gain>0</d_gain>
+        <i_max>0</i_max>
+        <i_min>0</i_min>
+        <cmd_max>2.5</cmd_max>
+        <cmd_min>-2.5</cmd_min>
+        <jointName>motor_cmd_joint_1</jointName>
+        <multiplier>1</multiplier>
+        <controlVelocitySlowdownSim>1</controlVelocitySlowdownSim>
+      </control>
+      <control channel="2">
+        <type>VELOCITY</type>
+        <useForce>false</useForce>
+        <offset>0</offset>
+        <p_gain>0.20</p_gain>
+        <i_gain>0</i_gain>
+        <d_gain>0</d_gain>
+        <i_max>0</i_max>
+        <i_min>0</i_min>
+        <cmd_max>2.5</cmd_max>
+        <cmd_min>-2.5</cmd_min>
+        <jointName>motor_cmd_joint_2</jointName>
+        <multiplier>1</multiplier>
+        <controlVelocitySlowdownSim>1</controlVelocitySlowdownSim>
+      </control>
+      <control channel="3">
+        <type>VELOCITY</type>
+        <useForce>false</useForce>
+        <offset>0</offset>
+        <p_gain>0.20</p_gain>
+        <i_gain>0</i_gain>
+        <d_gain>0</d_gain>
+        <i_max>0</i_max>
+        <i_min>0</i_min>
+        <cmd_max>2.5</cmd_max>
+        <cmd_min>-2.5</cmd_min>
+        <jointName>motor_cmd_joint_3</jointName>
+        <multiplier>1</multiplier>
+        <controlVelocitySlowdownSim>1</controlVelocitySlowdownSim>
+      </control>
+    </plugin>
+    <plugin name="ardupilot_motor_bridge" filename="libArduPilotMotorBridge.so">
+      <targetModelName>iris-3</targetModelName>
+      <commandSubTopic>/gazebo/command/motor_speed</commandSubTopic>
+      <jointName>motor_cmd_joint_0</jointName>
+      <jointName>motor_cmd_joint_1</jointName>
+      <jointName>motor_cmd_joint_2</jointName>
+      <jointName>motor_cmd_joint_3</jointName>
+    </plugin>
+
+  </model>
+</sdf>

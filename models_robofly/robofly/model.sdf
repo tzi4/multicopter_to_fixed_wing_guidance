@@ -1,0 +1,423 @@
+<?xml version='1.0' encoding='utf-8'?>
+<sdf version="1.6">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <model name="robofly">
+
+
+
+
+
+    <link name="base_link">
+
+      <!-- Body physics {-->
+      <inertial>
+    <mass>0.8</mass>
+    <inertia>
+      <ixx>0.00816666666666667</ixx>
+      <ixy>0</ixy>
+      <ixz>0</ixz>
+      <iyy>0.00816666666666667</iyy>
+      <iyz>0</iyz>
+      <izz>0.016000000000000004</izz>
+    </inertia>
+  </inertial>
+  <collision name="base_link_collision">
+    <pose>
+      <x>0</x>
+      <y>0</y>
+      <z>-0.075</z>
+      <roll>0</roll>
+      <pitch>0</pitch>
+      <yaw>0</yaw>
+    </pose>
+    <geometry>
+      <cylinder>
+        <length>0.15</length>
+        <radius>0.15</radius>
+      </cylinder>
+    </geometry>
+    <surface>
+      <contact>
+        <ode>
+          <min_depth>0.001</min_depth>
+          <max_vel>0.0</max_vel>
+        </ode>
+      </contact>
+      <friction>
+        <ode />
+      </friction>
+    </surface>
+  </collision>
+
+  <plugin filename="libgazebo_multirotor_base_plugin.so" name="multirotor_base_plugin">
+    <robotNamespace />
+    <linkName>base_link</linkName>
+    <rotorVelocitySlowdownSim>0.0159236</rotorVelocitySlowdownSim>
+  </plugin>
+      <!--}-->
+
+      <!-- Body visuals {-->
+
+      <!-- Body {-->
+      <visual name="body_visual">
+  <pose>0 0 0.0 -1.5707963267948966 0.0 -1.5707963267948966</pose>
+  <geometry>
+    <mesh>
+      <uri>model://robofly/meshes/body.dae</uri>
+      <scale>0.001 0.001 0.001</scale>
+    </mesh>
+  </geometry>
+</visual>
+      <!--}-->
+
+      <!--}-->
+
+    </link>
+
+
+  <plugin name="gazebo_fluid_resistance_plugin" filename="libMrsGazeboCommonResources_FluidResistancePlugin.so">
+  <robotNamespace />
+  <model_mass>0.8</model_mass>
+  <FluidResistanceTopicName>/fluid_resistance</FluidResistanceTopicName>
+  <NameLinkToApplyResistance>base_link</NameLinkToApplyResistance>
+  <rate>500</rate>
+  <res_x>0.1</res_x>
+  <res_y>0.1</res_y>
+  <res_z>0.2</res_z>
+  <verbose>True</verbose>
+</plugin>
+
+
+    <!-- Propellers {--><!-- Propeller 0 {-->
+      <link name="prop_0_link">
+    <pose>0.09545941546018391 -0.09545941546018391 0.021 0 0 0</pose>
+    <inertial>
+      <mass>0.005</mass>
+      <inertia>
+        <ixx>2.0327916666666665e-06</ixx>
+        <ixy>0</ixy>
+        <ixz>0</ixz>
+        <iyy>2.0327916666666665e-06</iyy>
+        <iyz>0</iyz>
+        <izz>4.03225e-06</izz>
+      </inertia>
+    </inertial>
+    <visual name="prop_{{ motor_number }}_visual">
+    <pose>0 0 0 0 0 0</pose>
+    <geometry>
+      <mesh>
+        <uri>model://robofly/meshes/prop_ccw.dae</uri>
+        <scale>0.001 0.001 0.001</scale>
+      </mesh>
+    </geometry>
+    <material>
+      <script>
+        <name>Gazebo/DarkGrey</name>
+        <uri>file://media/materials/scripts/gazebo.material</uri>
+      </script>
+    </material>
+  </visual>
+    <collision name="prop_{{ motor_number }}_link_collision">
+    <pose>0 0 0 0 1.5707963267948966 0</pose>
+    <geometry>
+      <cylinder>
+        <length>0.127</length>
+        <radius>0.01</radius>
+      </cylinder>
+    </geometry>
+    <surface>
+      <contact>
+        <ode>
+          <min_depth>0.01</min_depth>
+          <max_vel>0.0</max_vel>
+        </ode>
+      </contact>
+      <friction>
+        <ode />
+      </friction>
+    </surface>
+  </collision>
+  </link>
+  <joint name="prop_0_joint" type="revolute">
+    <parent>base_link</parent>
+    <child>prop_0_link</child>
+    <axis>
+      <xyz>0 0 1</xyz>
+      <limit>
+        <lower>-1e+16</lower>
+        <upper>1e+16</upper>
+      </limit>
+      <dynamics>
+        <spring_reference>0</spring_reference>
+        <spring_stiffness>0</spring_stiffness>
+      </dynamics>
+      <use_parent_model_frame>1</use_parent_model_frame>
+    </axis>
+  </joint>
+      <!--}--><!-- Propeller 1 {-->
+      <link name="prop_1_link">
+    <pose>-0.09545941546018391 0.09545941546018391 0.021 0 0 0</pose>
+    <inertial>
+      <mass>0.005</mass>
+      <inertia>
+        <ixx>2.0327916666666665e-06</ixx>
+        <ixy>0</ixy>
+        <ixz>0</ixz>
+        <iyy>2.0327916666666665e-06</iyy>
+        <iyz>0</iyz>
+        <izz>4.03225e-06</izz>
+      </inertia>
+    </inertial>
+    <visual name="prop_{{ motor_number }}_visual">
+    <pose>0 0 0 0 0 0</pose>
+    <geometry>
+      <mesh>
+        <uri>model://robofly/meshes/prop_ccw.dae</uri>
+        <scale>0.001 0.001 0.001</scale>
+      </mesh>
+    </geometry>
+    <material>
+      <script>
+        <name>Gazebo/DarkGrey</name>
+        <uri>file://media/materials/scripts/gazebo.material</uri>
+      </script>
+    </material>
+  </visual>
+    <collision name="prop_{{ motor_number }}_link_collision">
+    <pose>0 0 0 0 1.5707963267948966 0</pose>
+    <geometry>
+      <cylinder>
+        <length>0.127</length>
+        <radius>0.01</radius>
+      </cylinder>
+    </geometry>
+    <surface>
+      <contact>
+        <ode>
+          <min_depth>0.01</min_depth>
+          <max_vel>0.0</max_vel>
+        </ode>
+      </contact>
+      <friction>
+        <ode />
+      </friction>
+    </surface>
+  </collision>
+  </link>
+  <joint name="prop_1_joint" type="revolute">
+    <parent>base_link</parent>
+    <child>prop_1_link</child>
+    <axis>
+      <xyz>0 0 1</xyz>
+      <limit>
+        <lower>-1e+16</lower>
+        <upper>1e+16</upper>
+      </limit>
+      <dynamics>
+        <spring_reference>0</spring_reference>
+        <spring_stiffness>0</spring_stiffness>
+      </dynamics>
+      <use_parent_model_frame>1</use_parent_model_frame>
+    </axis>
+  </joint>
+      <!--}--><!-- Propeller 2 {-->
+      <link name="prop_2_link">
+    <pose>0.09545941546018391 0.09545941546018391 0.021 0 0 0</pose>
+    <inertial>
+      <mass>0.005</mass>
+      <inertia>
+        <ixx>2.0327916666666665e-06</ixx>
+        <ixy>0</ixy>
+        <ixz>0</ixz>
+        <iyy>2.0327916666666665e-06</iyy>
+        <iyz>0</iyz>
+        <izz>4.03225e-06</izz>
+      </inertia>
+    </inertial>
+    <visual name="prop_{{ motor_number }}_visual">
+    <pose>0 0 0 0 0 0</pose>
+    <geometry>
+      <mesh>
+        <uri>model://robofly/meshes/prop_cw.dae</uri>
+        <scale>0.001 0.001 0.001</scale>
+      </mesh>
+    </geometry>
+    <material>
+      <script>
+        <name>Gazebo/DarkGrey</name>
+        <uri>file://media/materials/scripts/gazebo.material</uri>
+      </script>
+    </material>
+  </visual>
+    <collision name="prop_{{ motor_number }}_link_collision">
+    <pose>0 0 0 0 1.5707963267948966 0</pose>
+    <geometry>
+      <cylinder>
+        <length>0.127</length>
+        <radius>0.01</radius>
+      </cylinder>
+    </geometry>
+    <surface>
+      <contact>
+        <ode>
+          <min_depth>0.01</min_depth>
+          <max_vel>0.0</max_vel>
+        </ode>
+      </contact>
+      <friction>
+        <ode />
+      </friction>
+    </surface>
+  </collision>
+  </link>
+  <joint name="prop_2_joint" type="revolute">
+    <parent>base_link</parent>
+    <child>prop_2_link</child>
+    <axis>
+      <xyz>0 0 1</xyz>
+      <limit>
+        <lower>-1e+16</lower>
+        <upper>1e+16</upper>
+      </limit>
+      <dynamics>
+        <spring_reference>0</spring_reference>
+        <spring_stiffness>0</spring_stiffness>
+      </dynamics>
+      <use_parent_model_frame>1</use_parent_model_frame>
+    </axis>
+  </joint>
+      <!--}--><!-- Propeller 3 {-->
+      <link name="prop_3_link">
+    <pose>-0.09545941546018391 -0.09545941546018391 0.021 0 0 0</pose>
+    <inertial>
+      <mass>0.005</mass>
+      <inertia>
+        <ixx>2.0327916666666665e-06</ixx>
+        <ixy>0</ixy>
+        <ixz>0</ixz>
+        <iyy>2.0327916666666665e-06</iyy>
+        <iyz>0</iyz>
+        <izz>4.03225e-06</izz>
+      </inertia>
+    </inertial>
+    <visual name="prop_{{ motor_number }}_visual">
+    <pose>0 0 0 0 0 0</pose>
+    <geometry>
+      <mesh>
+        <uri>model://robofly/meshes/prop_cw.dae</uri>
+        <scale>0.001 0.001 0.001</scale>
+      </mesh>
+    </geometry>
+    <material>
+      <script>
+        <name>Gazebo/DarkGrey</name>
+        <uri>file://media/materials/scripts/gazebo.material</uri>
+      </script>
+    </material>
+  </visual>
+    <collision name="prop_{{ motor_number }}_link_collision">
+    <pose>0 0 0 0 1.5707963267948966 0</pose>
+    <geometry>
+      <cylinder>
+        <length>0.127</length>
+        <radius>0.01</radius>
+      </cylinder>
+    </geometry>
+    <surface>
+      <contact>
+        <ode>
+          <min_depth>0.01</min_depth>
+          <max_vel>0.0</max_vel>
+        </ode>
+      </contact>
+      <friction>
+        <ode />
+      </friction>
+    </surface>
+  </collision>
+  </link>
+  <joint name="prop_3_joint" type="revolute">
+    <parent>base_link</parent>
+    <child>prop_3_link</child>
+    <axis>
+      <xyz>0 0 1</xyz>
+      <limit>
+        <lower>-1e+16</lower>
+        <upper>1e+16</upper>
+      </limit>
+      <dynamics>
+        <spring_reference>0</spring_reference>
+        <spring_stiffness>0</spring_stiffness>
+      </dynamics>
+      <use_parent_model_frame>1</use_parent_model_frame>
+    </axis>
+  </joint>
+      <!--}--><!--}-->
+
+
+
+
+
+
+    <!-- Pixhawk {--><!-- Gazebo ground truth {-->
+    <!-- only used by gazebo_mavlink_interface for HITL -->
+  <!--}-->
+
+    <!-- GPS {-->
+    <!--}-->
+
+    <!-- Magnetometer {-->
+    <!--}-->
+
+    <!-- Barometer {-->
+    <!--}-->
+
+    <!-- Mavlink interface {-->
+    <!--}-->
+
+    <!-- IMU {-->
+    <!-- NOTE: IMU has to be last, otherwise the simulation is extremely slow! -->
+    <!--}-->
+
+    <!--}-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </model>
+
+</sdf>

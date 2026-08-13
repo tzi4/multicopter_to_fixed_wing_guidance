@@ -1,0 +1,329 @@
+<sdf version='1.7'>
+  <model name='hummingbird'>
+    <link name='hummingbird/base_link'>
+      <inertial>
+        <pose>0 0 0 0 -0 0</pose>
+        <mass>0.68</mass>
+        <inertia>
+          <ixx>0.007</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.007</iyy>
+          <iyz>0</iyz>
+          <izz>0.012</izz>
+        </inertia>
+      </inertial>
+      <collision name='hummingbird/base_link_inertia_collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1 0.1 0.12</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name='hummingbird/base_link_inertia_visual'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hummingbird/meshes/hummingbird.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name='hummingbird/imu_joint' type='revolute'>
+      <pose relative_to='hummingbird/base_link'>0 0 0 0 -0 0</pose>
+      <parent>hummingbird/base_link</parent>
+      <child>hummingbird/imu_link</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+          <effort>0</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='hummingbird/imu_link'>
+      <pose relative_to='hummingbird/imu_joint'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 -0 0</pose>
+        <mass>0.015</mass>
+        <inertia>
+          <ixx>1e-05</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1e-05</iyy>
+          <iyz>0</iyz>
+          <izz>1e-05</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='hummingbird/rotor_0_joint' type='revolute'>
+      <pose relative_to='hummingbird/base_link'>0.17 0 0.01 0 -0 0</pose>
+      <parent>hummingbird/base_link</parent>
+      <child>hummingbird/rotor_0</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1e+16</lower>
+          <upper>1e+16</upper>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='hummingbird/rotor_0'>
+      <pose relative_to='hummingbird/rotor_0_joint'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 -0 0</pose>
+        <mass>0.009</mass>
+        <inertia>
+          <ixx>1.755e-06</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>7.50675e-05</iyy>
+          <iyz>0</iyz>
+          <izz>7.66875e-05</izz>
+        </inertia>
+      </inertial>
+      <collision name='hummingbird/rotor_0_collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <length>0.005</length>
+            <radius>0.1</radius>
+          </cylinder>
+        </geometry>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <friction>
+            <ode/>
+          </friction>
+        </surface>
+      </collision>
+      <visual name='hummingbird/rotor_0_visual'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>0.1 0.1 0.1</scale>
+            <uri>model://hummingbird/meshes/propeller_cw.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <script>
+            <name>Gazebo/Red</name>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+          </script>
+        </material>
+      </visual>
+    </link>
+    <joint name='hummingbird/rotor_1_joint' type='revolute'>
+      <pose relative_to='hummingbird/base_link'>0 0.17 0.01 0 -0 0</pose>
+      <parent>hummingbird/base_link</parent>
+      <child>hummingbird/rotor_1</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1e+16</lower>
+          <upper>1e+16</upper>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='hummingbird/rotor_1'>
+      <pose relative_to='hummingbird/rotor_1_joint'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 -0 0</pose>
+        <mass>0.009</mass>
+        <inertia>
+          <ixx>1.755e-06</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>7.50675e-05</iyy>
+          <iyz>0</iyz>
+          <izz>7.66875e-05</izz>
+        </inertia>
+      </inertial>
+      <collision name='hummingbird/rotor_1_collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <length>0.005</length>
+            <radius>0.1</radius>
+          </cylinder>
+        </geometry>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <friction>
+            <ode/>
+          </friction>
+        </surface>
+      </collision>
+      <visual name='hummingbird/rotor_1_visual'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>0.1 0.1 0.1</scale>
+            <uri>model://hummingbird/meshes/propeller_ccw.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <script>
+            <name>Gazebo/Blue</name>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+          </script>
+        </material>
+      </visual>
+    </link>
+    <joint name='hummingbird/rotor_2_joint' type='revolute'>
+      <pose relative_to='hummingbird/base_link'>-0.17 0 0.01 0 -0 0</pose>
+      <parent>hummingbird/base_link</parent>
+      <child>hummingbird/rotor_2</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1e+16</lower>
+          <upper>1e+16</upper>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='hummingbird/rotor_2'>
+      <pose relative_to='hummingbird/rotor_2_joint'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 -0 0</pose>
+        <mass>0.009</mass>
+        <inertia>
+          <ixx>1.755e-06</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>7.50675e-05</iyy>
+          <iyz>0</iyz>
+          <izz>7.66875e-05</izz>
+        </inertia>
+      </inertial>
+      <collision name='hummingbird/rotor_2_collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <length>0.005</length>
+            <radius>0.1</radius>
+          </cylinder>
+        </geometry>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <friction>
+            <ode/>
+          </friction>
+        </surface>
+      </collision>
+      <visual name='hummingbird/rotor_2_visual'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>0.1 0.1 0.1</scale>
+            <uri>model://hummingbird/meshes/propeller_cw.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <script>
+            <name>Gazebo/Blue</name>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+          </script>
+        </material>
+      </visual>
+    </link>
+    <joint name='hummingbird/rotor_3_joint' type='revolute'>
+      <pose relative_to='hummingbird/base_link'>0 -0.17 0.01 0 -0 0</pose>
+      <parent>hummingbird/base_link</parent>
+      <child>hummingbird/rotor_3</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1e+16</lower>
+          <upper>1e+16</upper>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='hummingbird/rotor_3'>
+      <pose relative_to='hummingbird/rotor_3_joint'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 -0 0</pose>
+        <mass>0.009</mass>
+        <inertia>
+          <ixx>1.755e-06</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>7.50675e-05</iyy>
+          <iyz>0</iyz>
+          <izz>7.66875e-05</izz>
+        </inertia>
+      </inertial>
+      <collision name='hummingbird/rotor_3_collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <length>0.005</length>
+            <radius>0.1</radius>
+          </cylinder>
+        </geometry>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <friction>
+            <ode/>
+          </friction>
+        </surface>
+      </collision>
+      <visual name='hummingbird/rotor_3_visual'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>0.1 0.1 0.1</scale>
+            <uri>model://hummingbird/meshes/propeller_ccw.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <script>
+            <name>Gazebo/Blue</name>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+          </script>
+        </material>
+      </visual>
+    </link>
+    <!-- The upstream RotorS controller/IMU/motor plugins are intentionally
+         omitted. The outer suru_drone_N wrapper supplies the ArduPilot IMU
+         contract and the same RotorS motor coefficients through the vendored
+         Gazebo Classic motor plugin. The physical links, joints, inertias,
+         collisions and meshes above are unchanged. -->
+    <frame name='hummingbird/base_joint' attached_to='hummingbird/base_link'>
+      <pose>0 0 0 0 -0 0</pose>
+    </frame>
+    <frame name='hummingbird/base_link_inertia' attached_to='hummingbird/base_joint'/>
+  </model>
+</sdf>
