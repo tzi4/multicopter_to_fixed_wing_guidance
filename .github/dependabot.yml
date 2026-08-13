@@ -16,7 +16,7 @@ updates:
       - dependency-name: matplotlib
         versions: [">=3.8.0"]
       - dependency-name: redis
-        versions: [">=7.0.0"]
+        versions: [">6.1.1"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
