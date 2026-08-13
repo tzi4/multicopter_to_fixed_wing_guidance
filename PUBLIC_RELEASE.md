@@ -53,7 +53,7 @@ After every gate above passes, change visibility in GitHub repository settings
 or with:
 
 ```bash
-gh repo edit tzi4/savasan_iha_yildizlar_goruntulu_gudum \
+gh repo edit tzi4/multicopter_to_fixed_wing_guidance \
   --visibility public \
   --accept-visibility-change-consequences
 ```
