@@ -14,7 +14,7 @@ scipy>=1.7             # FilterPy sayisal lineer cebir islemleri
 # --- Yalniz belirli araclar/senaryolar icin ---
 opencv-python>=4.5     # bbox_to_redis HSV tespiti (SIM). Donanimda IMX500 NN
                        # dedektoru bunun yerini alir (bkz. DONANIM_GOREV Gorev 2).
-matplotlib>=3.5        # tools/uc_boyut_video.py (CEVRIMDISI 3B izleme videosu)
+matplotlib>=3.11.1        # tools/uc_boyut_video.py (CEVRIMDISI 3B izleme videosu)
 
 # --- Donanim tespit katmani (Pi 5, apt ile kurulur, pip DEGIL) ---
 #   sudo apt install python3-picamera2 imx500-all

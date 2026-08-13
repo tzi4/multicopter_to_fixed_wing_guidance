@@ -7,4 +7,4 @@ numpy==1.24.4
 filterpy==1.4.5
 scipy==1.10.1
 opencv-python==4.12.0.88
-matplotlib==3.7.5
+matplotlib==3.11.1
