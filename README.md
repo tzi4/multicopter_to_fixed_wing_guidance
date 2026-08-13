@@ -1,8 +1,8 @@
-# savasan_iha_yildizlar — Görsel Güdüm ve Otonom Önleme Araştırma Platformu
+# multicopter_to_fixed_wing_guidance — Görsel Güdüm ve Otonom Önleme Araştırma Platformu
 
 Bu depo; hareketli bir hava hedefinin çoklu araç simülasyonunda bulunması, arkadan yaklaşma ile emniyetli biçimde devralınması ve son safhada kamera tabanlı bir güdüm yasasıyla önlenmesi için geliştirdiğimiz uçtan uca araştırma platformudur. Çalışma yalnızca bir kontrol algoritmasından ibaret değildir: ArduPilot SITL, Gazebo, ROS, Redis, MAVLink, fiziksel gimbal modeli, Raspberry Pi 5 ve Raspberry Pi AI Camera arasında çalışan bütün zinciri içerir.
 
-Proje şu anda **özel depo** olarak tutulmaktadır ve önümüzdeki aylarda açık kaynak olarak yayımlanması planlanmaktadır. Kaynak kod, lisans/atıf kayıtları, sabitlenmiş doğrulama ortamı, katkı ve güvenlik belgeleri ile otomatik test hattı public yayın için hazırlanmıştır. Ham gerçek uçuş telemetrisi ve kişisel saha verileri açık kaynak dağıtımının dışında tutulur.
+Proje **MIT lisansı ile açık kaynak** olarak yayımlanmaktadır. Kaynak kod; lisans/atıf kayıtları, sabitlenmiş doğrulama ortamı, katkı ve güvenlik belgeleri ile otomatik test hattını içerir. Ham gerçek uçuş telemetrisi, kişisel saha verileri ve özel geliştirme geçmişi açık kaynak dağıtımının dışında tutulur.
 
 > **Güncel durum:** Simülasyonda en başarılı yapı, konum tabanlı yaklaşmadan sonra büyük görüntü kutusu ile devreye giren tek aşamalı **Terminal LOS/PN, `N=4`** yasasıdır. Altı bağımsız denemenin tamamında gerçek en yakın geçiş mesafesi 5 metrenin altında kalmış, iki denemede fiziksel temas imzası oluşmuştur. Gerçek araç yazılım zinciri Raspberry Pi 5 üzerinde hazırlanmıştır; buna rağmen gerçek uçuş öncesinde aşağıdaki kademeli doğrulama ve emniyet adımları zorunludur.
 
@@ -423,7 +423,7 @@ Başarı yalnızca minimum mesafe ile ölçülmeyecektir. Gerçek CPA dağılım
 
 ## Açık kaynak yayın durumu
 
-Depo önümüzdeki aylarda public olarak yayımlanacaktır. Açık kaynak hazırlığında şu parçalar tamamlanmıştır:
+Depo 13 Ağustos 2026 tarihinde açık kaynak olarak yayımlanmıştır. Yayın kapsamında şu parçalar tamamlanmıştır:
 
 - Özgün proje kodu için MIT lisansı ve üçüncü taraf atıf kaydı
 - CI ile doğrulanan, sürümü sabitlenmiş Python bağımlılıkları
@@ -432,7 +432,7 @@ Depo önümüzdeki aylarda public olarak yayımlanacaktır. Açık kaynak hazır
 - Simülasyon ve gerçek donanım için yeniden üretilebilir çalışma tarifleri
 - Ham gerçek uçuş telemetrisini dağıtım dışında bırakan veri politikası
 
-Yayın öncesindeki son işlem, [`PUBLIC_RELEASE.md`](PUBLIC_RELEASE.md) içindeki kontrol listesini çalıştırmak ve deponun GitHub görünürlüğünü değiştirmektir. Yayın sonrasında simülasyon senaryoları, algı modelleri, farklı hava aracı entegrasyonları ve güvenli kontrol üzerine katkılar kabul edilecektir.
+Yayın kapısı ve sonraki sürümler için uygulanacak denetimler [`PUBLIC_RELEASE.md`](PUBLIC_RELEASE.md) içinde korunmaktadır. Simülasyon senaryoları, algı modelleri, farklı hava aracı entegrasyonları ve güvenli kontrol üzerine katkılar kabul edilmektedir.
 
 ---
 

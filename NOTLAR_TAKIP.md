@@ -20,7 +20,7 @@
 
 ```bash
 # ============================ NEREDE ÇALIŞIR ====================
-cd /path/to/savasan_iha_yildizlar     # TÜM komutlar depo kökünden
+cd /path/to/multicopter_to_fixed_wing_guidance     # TÜM komutlar depo kökünden
 git checkout ardupilot-takip            # bu yöntem BU DALDA
 
 # ============================ YIĞIN ============================

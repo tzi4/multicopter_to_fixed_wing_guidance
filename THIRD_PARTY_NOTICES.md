@@ -1,7 +1,7 @@
 # Third-party notices
 
 The MIT license in [`LICENSE`](LICENSE) applies to original
-`savasan_iha_yildizlar` code and documentation. It does not replace licenses
+`multicopter_to_fixed_wing_guidance` code and documentation. It does not replace licenses
 attached to bundled third-party source code, models, meshes or other assets.
 
 ## PX4 Gazebo Classic / RotorS components

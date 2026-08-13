@@ -5,6 +5,18 @@ updates:
     schedule:
       interval: monthly
     open-pull-requests-limit: 5
+    # Raspberry Pi/ROS toolchain is validated on CPython 3.8. Dependabot does
+    # not infer that constraint from this lock file, so exclude releases that
+    # no longer publish Python 3.8 distributions.
+    ignore:
+      - dependency-name: numpy
+        versions: [">=1.25.0"]
+      - dependency-name: scipy
+        versions: [">=1.11.0"]
+      - dependency-name: matplotlib
+        versions: [">=3.8.0"]
+      - dependency-name: redis
+        versions: [">6.1.1"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
