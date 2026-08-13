@@ -1,7 +1,7 @@
 # Third-party notices
 
 The MIT license in [`LICENSE`](LICENSE) applies to original
-`savasan_iha_yildizlar` code and documentation. It does not replace licenses
+`savasan_iha_yildizlar_goruntulu_gudum` code and documentation. It does not replace licenses
 attached to bundled third-party source code, models, meshes or other assets.
 
 ## PX4 Gazebo Classic / RotorS components

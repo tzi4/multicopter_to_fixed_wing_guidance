@@ -13,7 +13,8 @@
 LOOP_HZ = 30  # guidance / GUI update rate [Hz]
 
 # --- MAVLink connections ---
-# YILDIZLAR ORTAMI UYARLAMASI (savasan_iha_yildizlar/yildizlar_gudum.sh)
+# YILDIZLAR ORTAMI UYARLAMASI
+# (savasan_iha_yildizlar_goruntulu_gudum/yildizlar_gudum.sh)
 # Bu ortamda portlar ve SysID'ler farkli; degerler orada TEK yerde tanimli:
 #   avci  drone_1     SysID 1 -> 14550(QGC) 14551(tools) 14651(wait) 14652(BU)
 #   hedef sabit kanat SysID 6 -> 14550(QGC) 14601(tools) 14602(plan)  14603(BU)

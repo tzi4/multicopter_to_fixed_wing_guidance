@@ -414,49 +414,49 @@ stackinin ve gerçek araç zarfının kanıtıdır.
 Ortamı RoboFly, LOS kapısı ve video kaydıyla başlat:
 
 ```bash
-cd /path/to/savasan_iha_yildizlar && YILDIZ_VIDEO=1 YILDIZ_VIDEO_ETIKET=los_robofly YILDIZ_GECIS_BUYUK_KARE=5 YILDIZ_GECIS_ALAN_PCT=3 YILDIZ_DEVIR_SOGUMA_S=3 ./yildizlar_gudum.sh --robofly
+cd /path/to/savasan_iha_yildizlar_goruntulu_gudum && YILDIZ_VIDEO=1 YILDIZ_VIDEO_ETIKET=los_robofly YILDIZ_GECIS_BUYUK_KARE=5 YILDIZ_GECIS_ALAN_PCT=3 YILDIZ_DEVIR_SOGUMA_S=3 ./yildizlar_gudum.sh --robofly
 ```
 
 Hedefe elips görevi verip avcıyı kaldır:
 
 ```bash
-cd /path/to/savasan_iha_yildizlar && python3 tools/gorev_baslat.py --drones 1 --drone-alt 60 --plan missions/hedef_elips.plan
+cd /path/to/savasan_iha_yildizlar_goruntulu_gudum && python3 tools/gorev_baslat.py --drones 1 --drone-alt 60 --plan missions/hedef_elips.plan
 ```
 
 Konumlu arka-slot yaklaşımını çalıştır:
 
 ```bash
-cd /path/to/savasan_iha_yildizlar/guidance_allstar && python3 simple_guided_follow.py --no-kill-mode --yaw-lock --back 25 --down 4
+cd /path/to/savasan_iha_yildizlar_goruntulu_gudum/guidance_allstar && python3 simple_guided_follow.py --no-kill-mode --yaw-lock --back 25 --down 4
 ```
 
 Ayrı terminalde görüntülü LOS'u çalıştır:
 
 ```bash
-cd /path/to/savasan_iha_yildizlar/guidance_allstar && python3 terminal_los_gudum.py
+cd /path/to/savasan_iha_yildizlar_goruntulu_gudum/guidance_allstar && python3 terminal_los_gudum.py
 ```
 
 Ortamı düzgün kapatıp MP4 başlığını tamamla:
 
 ```bash
-cd /path/to/savasan_iha_yildizlar && ./yildizlar_gudum.sh --stop
+cd /path/to/savasan_iha_yildizlar_goruntulu_gudum && ./yildizlar_gudum.sh --stop
 ```
 
 Tam otomatik elips kampanyası:
 
 ```bash
-cd /path/to/savasan_iha_yildizlar && YILDIZ_DRONE_MODEL=robofly YILDIZ_GECIS_BUYUK_KARE=5 YILDIZ_GECIS_ALAN_PCT=3 YILDIZ_DEVIR_SOGUMA_S=3 SURE=600 KONTROL_BEKLE_S=20 GORUNTULU="terminal_los_gudum.py" PLAN=missions/hedef_elips.plan METOT=los_big5a3_n4 tools/senaryo.sh
+cd /path/to/savasan_iha_yildizlar_goruntulu_gudum && YILDIZ_DRONE_MODEL=robofly YILDIZ_GECIS_BUYUK_KARE=5 YILDIZ_GECIS_ALAN_PCT=3 YILDIZ_DEVIR_SOGUMA_S=3 SURE=600 KONTROL_BEKLE_S=20 GORUNTULU="terminal_los_gudum.py" PLAN=missions/hedef_elips.plan METOT=los_big5a3_n4 tools/senaryo.sh
 ```
 
 Tam otomatik düz kampanya:
 
 ```bash
-cd /path/to/savasan_iha_yildizlar && YILDIZ_DRONE_MODEL=robofly YILDIZ_GECIS_BUYUK_KARE=5 YILDIZ_GECIS_ALAN_PCT=3 YILDIZ_DEVIR_SOGUMA_S=3 SURE=360 KONTROL_BEKLE_S=20 GORUNTULU="terminal_los_gudum.py" PLAN=missions/hedef_duz.plan METOT=los_big5a3_n4 tools/senaryo.sh
+cd /path/to/savasan_iha_yildizlar_goruntulu_gudum && YILDIZ_DRONE_MODEL=robofly YILDIZ_GECIS_BUYUK_KARE=5 YILDIZ_GECIS_ALAN_PCT=3 YILDIZ_DEVIR_SOGUMA_S=3 SURE=360 KONTROL_BEKLE_S=20 GORUNTULU="terminal_los_gudum.py" PLAN=missions/hedef_duz.plan METOT=los_big5a3_n4 tools/senaryo.sh
 ```
 
 Birim/kapalı-döngü testleri:
 
 ```bash
-cd /path/to/savasan_iha_yildizlar && python3 guidance_allstar/terminal_los_test.py
+cd /path/to/savasan_iha_yildizlar_goruntulu_gudum && python3 guidance_allstar/terminal_los_test.py
 ```
 
 2026-08-11'de bu test `15/15 OK` verdi.
@@ -466,25 +466,25 @@ cd /path/to/savasan_iha_yildizlar && python3 guidance_allstar/terminal_los_test.
 Bench kamera+servo, araç sabit ve pervaneler güvenliyken:
 
 ```bash
-cd /path/to/savasan_iha_yildizlar && python3 yarışma/gimbal_bench_takip.py --kaynak picam --kuru --goster
+cd /path/to/savasan_iha_yildizlar_goruntulu_gudum && python3 yarışma/gimbal_bench_takip.py --kaynak picam --kuru --goster
 ```
 
 Servo mount sweep, araç sabit ve pervaneler güvenliyken:
 
 ```bash
-cd /path/to/savasan_iha_yildizlar && python3 yarışma/mavlink_tilt.py --baglanti udp:127.0.0.1:14554 --kanal 9
+cd /path/to/savasan_iha_yildizlar_goruntulu_gudum && python3 yarışma/mavlink_tilt.py --baglanti udp:127.0.0.1:14554 --kanal 9
 ```
 
 Gerçek LOS yasasını aracı sürmeden izle:
 
 ```bash
-cd /path/to/savasan_iha_yildizlar && python3 yarışma/mpc_komut_izle.py --yasa los --menzil-m 20 --n-pn 4 --vur-ivme 4
+cd /path/to/savasan_iha_yildizlar_goruntulu_gudum && python3 yarışma/mpc_komut_izle.py --yasa los --menzil-m 20 --n-pn 4 --vur-ivme 4
 ```
 
 Tüm tek-düğüm zincirini MAVLink'e hız komutu yazmadan çalıştır:
 
 ```bash
-cd /path/to/savasan_iha_yildizlar && python3 donanim/gudum_tek_dugum.py --gudum los --buyuk-kare 5 --alan-pct 3 --dry-run --sure 60
+cd /path/to/savasan_iha_yildizlar_goruntulu_gudum && python3 donanim/gudum_tek_dugum.py --gudum los --buyuk-kare 5 --alan-pct 3 --dry-run --sure 60
 ```
 
 Gerçek komutlu `kamera_kopru + gudum_tek_dugum + formation_KILLER` satırı
