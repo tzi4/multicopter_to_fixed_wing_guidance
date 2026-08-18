@@ -1080,26 +1080,29 @@ class SuruRedisDetector:
                        horizontal_coverage, w_img, h_img)
 
     def _eklem_hesapla(self, roll_i, pitch_i):
-        """Canli kamera->govde eklem acisini dondurur.
+        """Gazebo kamera elevasyonundan govdeye gore eklem acisini dondurur.
 
-        ArduPilot servo-mount status pitch'i bu kurulumda govdeye gore eklem
-        acisidir; DO_MOUNT_CONTROL hedefi ise dunya elevasyonudur. Taze status
-        dogrudan q olarak kullanilir. Status bayatsa dunya komutundan
-        ``eklem_acisi`` ile q turetilir. Aksi halde body pitch'i iki kez
-        cikarilir (2026-08-11 dinamik bench'te kanitlandi).
+        ``TiltDurumOkuyucu`` burada Gazebo ``gimbal_tilt_status`` topic'ini
+        okur. ``GimbalSmall2dPlugin`` stabilize modunda bu topic'e eklem
+        acisini degil, kameranin DUNYA elevasyonunu yazar. Dolayisiyla taze
+        status da bayat-status yedegi olan komut da ``eklem_acisi`` ile q'ya
+        cevrilmelidir.
+
+        Gercek ArduPilot servo-mount status'u farkli bir sozlesmeye sahiptir:
+        govdeye gore eklem acisidir. O yol ROS'suz ``donanim/kamera_kopru.py``
+        icinde ayrica ele alinir; donanim yorumu buraya tasinamaz.
         """
         if self.tilt_okuyucu is None:
             return None, None, None
         yas = self.tilt_okuyucu.yas_s()
         if yas is not None and yas < 1.5 and self.tilt_okuyucu.deger_rad is not None:
-            q_status = math.degrees(self.tilt_okuyucu.deger_rad)
-            return q_status, q_status, yas
+            eps = math.degrees(self.tilt_okuyucu.deger_rad)
         elif (self.tilt_komutcu is not None
               and self.tilt_komutcu.hedef_deg is not None):
             eps = self.tilt_komutcu.hedef_deg
-            return eklem_acisi(eps, pitch_i, roll_i), None, yas
         else:
             return None, None, yas
+        return eklem_acisi(eps, pitch_i, roll_i), eps, yas
 
     def _report(self, valid_detection, box, coverage):
         """Saniyede bir ozet satiri: fps + tespit orani (log dosyasi icin)."""
@@ -1126,17 +1129,25 @@ class SuruRedisDetector:
                     yas = self.tilt_okuyucu.yas_s()
                     cmd = (self.tilt_komutcu.hedef_deg
                            if self.tilt_komutcu is not None else None)
-                    st = (None if self.tilt_okuyucu.deger_rad is None
-                          else math.degrees(self.tilt_okuyucu.deger_rad))
+                    # Gazebo status'u DUNYA elevasyonudur. Rapor hem ayni
+                    # cercevedeki komut/status'u hem de bunlardan tureyen
+                    # govdeye-gore eklem acilarini yan yana gosterir.
+                    st_eps = (None if self.tilt_okuyucu.deger_rad is None
+                              else math.degrees(self.tilt_okuyucu.deger_rad))
                     q_cmd = (None if cmd is None else
                              eklem_acisi(cmd, self.tutum.pitch,
                                          self.tutum.roll))
+                    q_st = (None if st_eps is None else
+                            eklem_acisi(st_eps, self.tutum.pitch,
+                                        self.tutum.roll))
                     ek += (f" tilt_world={'-' if cmd is None else f'{cmd:+.1f}'}"
-                           f" joint={'-' if st is None else f'{st:+.1f}'}"
+                           f"/{'-' if st_eps is None else f'{st_eps:+.1f}'}"
+                           f" joint={'-' if q_st is None else f'{q_st:+.1f}'}"
                            f"/{'-' if q_cmd is None else f'{q_cmd:+.1f}'}deg")
                     # olu-adam dersi (goruntulu-olu-adam-anahtari): sessiz
                     # sapma/bayatlik OZET'te bagirsin
-                    if st is not None and q_cmd is not None and abs(st - q_cmd) > 2.0:
+                    if (st_eps is not None and cmd is not None
+                            and abs(st_eps - cmd) > 2.0):
                         ek += " [TILT SAPMA UYARI]"
                     if yas is None or yas > 3.0:
                         ek += " [TILT STATUS BAYAT]"

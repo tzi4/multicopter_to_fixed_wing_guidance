@@ -35,6 +35,7 @@ jobs:
       - name: Guidance tests
         run: |
           python tools/test_opencv_detector.py
+          python tools/test_gazebo_gimbal_frame.py
           python donanim/test_balon_menzil.py
           cd guidance_allstar
           python terminal_los_test.py
