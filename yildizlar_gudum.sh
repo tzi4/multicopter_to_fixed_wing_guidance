@@ -41,6 +41,7 @@ RUN_DIR="$SCRIPT_DIR/run"
 LOG_DIR="$SCRIPT_DIR/logs"
 PID_FILE="$RUN_DIR/pids"
 LOCK_FILE="$RUN_DIR/launcher.lock"
+LAUNCHER_FILE="$RUN_DIR/launcher.pid"
 ARDUPILOT_DIR="${ARDUPILOT_DIR:-${HOME}/ardupilot}"
 ARDUPILOT_GAZEBO_DIR="${ARDUPILOT_GAZEBO_DIR:-${HOME}/ardupilot_gazebo}"
 IQ_SIM_MODELS="${IQ_SIM_MODELS:-${HOME}/catkin_ws/src/iq_sim/models}"
@@ -169,19 +170,100 @@ if ! [[ "$DRONE_COUNT" =~ ^[1-5]$ ]]; then
 fi
 
 mkdir -p "$RUN_DIR" "$LOG_DIR" "$RUN_DIR/ros" "$SCRIPT_DIR/videos"
-exec 9>"$LOCK_FILE"
-if ! flock -n 9; then
-  if [[ "$MODE" != stop ]]; then
-    echo "Baslatici baska bir islem tarafindan kullaniliyor." >&2
-    exit 1
-  fi
-fi
 
 pid_matches() {
   local pid="$1" expected_ticks="$2" actual_ticks
   [[ "$pid" =~ ^[0-9]+$ && -r "/proc/$pid/stat" ]] || return 1
   actual_ticks="$(awk '{print $22}' "/proc/$pid/stat" 2>/dev/null || true)"
   [[ "$actual_ticks" == "$expected_ticks" ]]
+}
+
+launcher_matches() {
+  local pid="$1" ticks="$2" expected_pgid="$3" actual_pgid
+  pid_matches "$pid" "$ticks" || return 1
+  actual_pgid="$(awk '{print $5}' "/proc/$pid/stat" 2>/dev/null || true)"
+  [[ "$actual_pgid" == "$expected_pgid" ]]
+}
+
+# launcher.pid bu duzeltmeden once yoktu. Eski bir baslatici kilidi tutuyorsa
+# yalniz su uc kosulu birden saglayan sureci sahip kabul et: ayni dizinden bu
+# betigi calistiriyor, --stop degil ve LOCK_FILE'i gercekten acik tutuyor.
+# Boylece eski surumden kalmis askidaki baslatici da ilk --stop ile temizlenir.
+find_legacy_launcher() {
+  local proc pid cwd arg fd found_script is_stop ticks pgid
+  local -a argv
+  for proc in /proc/[0-9]*; do
+    pid="${proc##*/}"
+    [[ "$pid" != "$$" && -r "$proc/cmdline" ]] || continue
+    argv=()
+    mapfile -d '' -t argv < "$proc/cmdline" 2>/dev/null || continue
+    found_script=0
+    is_stop=0
+    for arg in "${argv[@]}"; do
+      [[ "$arg" == --stop ]] && is_stop=1
+      [[ "${arg##*/}" == "${BASH_SOURCE[0]##*/}" ]] && found_script=1
+    done
+    [[ "$found_script" -eq 1 && "$is_stop" -eq 0 ]] || continue
+    cwd="$(readlink "$proc/cwd" 2>/dev/null || true)"
+    [[ "$cwd" == "$SCRIPT_DIR" ]] || continue
+    for fd in "$proc"/fd/*; do
+      [[ -e "$fd" && "$fd" -ef "$LOCK_FILE" ]] || continue
+      ticks="$(awk '{print $22}' "$proc/stat" 2>/dev/null || true)"
+      pgid="$(awk '{print $5}' "$proc/stat" 2>/dev/null || true)"
+      [[ -n "$ticks" && "$pgid" =~ ^[0-9]+$ ]] || continue
+      printf '%s %s %s\n' "$pid" "$ticks" "$pgid"
+      return 0
+    done
+  done
+  return 1
+}
+
+read_launcher_record() {
+  local pid ticks pgid
+  if [[ -f "$LAUNCHER_FILE" ]]; then
+    read -r pid ticks pgid < "$LAUNCHER_FILE" || true
+    if [[ "$pid" =~ ^[0-9]+$ && "$ticks" =~ ^[0-9]+$ && "$pgid" =~ ^[0-9]+$ ]] \
+        && launcher_matches "$pid" "$ticks" "$pgid"; then
+      printf '%s %s %s\n' "$pid" "$ticks" "$pgid"
+      return 0
+    fi
+  fi
+  find_legacy_launcher
+}
+
+stop_launcher() {
+  local record pid ticks pgid
+  record="$(read_launcher_record)" || return 1
+  read -r pid ticks pgid <<< "$record"
+  echo "Baslatici durduruluyor (PID $pid)"
+
+  # Etkilesimli kabukta baslatilan is kendi surec grubundadir. Ctrl-Z bu
+  # grubun tamamini (ornegin o anda calisan sleep'i de) durdurur; TERM'den
+  # sonra CONT gondermek sinyal tuzaginin calismasini ve kilidin birakilmasini
+  # saglar. Ortak bir surec grubundaysa ebeveyn kabugu etkilememek icin yalniz
+  # baslaticiya dokunulur.
+  if [[ "$pgid" == "$pid" ]]; then
+    kill -TERM -- "-$pgid" 2>/dev/null || true
+    kill -CONT -- "-$pgid" 2>/dev/null || true
+  else
+    kill -TERM -- "$pid" 2>/dev/null || true
+    kill -CONT -- "$pid" 2>/dev/null || true
+  fi
+
+  for _ in {1..50}; do
+    launcher_matches "$pid" "$ticks" "$pgid" || return 0
+    sleep 0.1
+  done
+  if [[ "$pgid" == "$pid" ]]; then
+    kill -KILL -- "-$pgid" 2>/dev/null || true
+  else
+    kill -KILL -- "$pid" 2>/dev/null || true
+  fi
+  for _ in {1..20}; do
+    launcher_matches "$pid" "$ticks" "$pgid" || return 0
+    sleep 0.1
+  done
+  return 1
 }
 
 stop_owned() {
@@ -213,10 +295,51 @@ stop_owned() {
   rm -f -- "$PID_FILE"
 }
 
+exec 9>"$LOCK_FILE"
 if [[ "$MODE" == stop ]]; then
+  # Once kilidi al: baslatma suruyorsa sahibini kapatip tekrar dene. Kilidi
+  # almadan PID_FILE'i silmek, askidaki baslaticiyi kilit sahibi ve kayitsiz
+  # birakiyordu. Araya yeni bir baslatma girerse onu da sonraki tur yakalar.
+  lock_acquired=0
+  for _ in {1..3}; do
+    if flock -n 9; then
+      lock_acquired=1
+      break
+    fi
+    if ! stop_launcher; then
+      sleep 0.2
+    fi
+  done
+  if [[ "$lock_acquired" -eq 0 ]] && flock -w 5 9; then
+    lock_acquired=1
+  fi
+  if [[ "$lock_acquired" -eq 0 ]]; then
+    echo "Baslatici durdurulamadi; kilit hala kullanimda." >&2
+    exit 1
+  fi
+  rm -f -- "$LAUNCHER_FILE"
   stop_owned
   exit 0
 fi
+
+if ! flock -n 9; then
+  echo "Baslatici baska bir islem tarafindan kullaniliyor." >&2
+  exit 1
+fi
+
+LAUNCHER_TICKS="$(awk '{print $22}' "/proc/$$/stat")"
+LAUNCHER_PGID="$(awk '{print $5}' "/proc/$$/stat")"
+printf '%s %s %s\n' "$$" "$LAUNCHER_TICKS" "$LAUNCHER_PGID" > "$LAUNCHER_FILE"
+
+cleanup_launcher_record() {
+  local pid ticks pgid
+  [[ -f "$LAUNCHER_FILE" ]] || return 0
+  read -r pid ticks pgid < "$LAUNCHER_FILE" || return 0
+  if [[ "$pid" == "$$" && "$ticks" == "$LAUNCHER_TICKS" ]]; then
+    rm -f -- "$LAUNCHER_FILE"
+  fi
+}
+trap cleanup_launcher_record EXIT
 
 if [[ -f "$PID_FILE" ]]; then
   while read -r _ pid ticks; do
@@ -397,7 +520,16 @@ assert_owned_alive() {
   done < "$PID_FILE"
 }
 
-trap 'echo "Baslatma basarisiz; bu pakete ait surecler kapatiliyor." >&2; stop_owned >/dev/null 2>&1 || true' ERR INT TERM
+abort_launch() {
+  local status="$1"
+  trap - ERR INT TERM
+  echo "Baslatma basarisiz; bu pakete ait surecler kapatiliyor." >&2
+  stop_owned >/dev/null 2>&1 || true
+  exit "$status"
+}
+trap 'abort_launch $?' ERR
+trap 'abort_launch 130' INT
+trap 'abort_launch 143' TERM
 preflight
 if [[ "$DRONE_MODEL" != iris ]]; then
   build_external_multirotor_plugins
