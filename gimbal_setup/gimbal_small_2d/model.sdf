@@ -1,0 +1,127 @@
+<?xml version='1.0'?>
+<sdf version='1.6'>
+  <model name='gimbal_small_2d'>
+    <pose>0 0 0.18 0 0 0</pose>
+
+    <link name='base_link'>
+       <inertial>
+        <!-- original 0.2 was kg; 0.35 m ahead of the drone nose this was disrupting the mass control authority (user reported) -> negligible level -->
+        <mass>0.005</mass>
+        <inertia>
+          <ixx>1e-05</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1e-05</iyy>
+          <iyz>0</iyz>
+          <izz>1e-05</izz>
+        </inertia>
+      </inertial>
+
+      <!-- IMAGES REMOVED (2026-08-05, user request): the gimbal's fork arms were entering the frame when the stabilized camera was rotated relative to the body (e.g. nose up during braking). Invisible to camera; CRASHES STOP (vehicle crash tests are not affected). -->
+
+      <!-- Crash geometries in ORIGINAL condition (user request: required for crash tests with other vehicles). NOTE: the mounting height of swarm_drone was moved to z=0.18 so that this box does not touch the ground. -->
+      <collision name='base_col'>
+        <pose>0.01 0.075 -0.025 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1 0.05 0.15</size>
+          </box>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>1</mu>
+              <mu2>1</mu2>
+              <fdir1>0 0 0</fdir1>
+              <slip1>0</slip1>
+              <slip2>0</slip2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+    </link>
+
+    <link name='tilt_link'>
+       <inertial>
+        <mass>0.002</mass>
+        <inertia>
+          <ixx>1e-05</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1e-05</iyy>
+          <iyz>0</iyz>
+          <izz>1e-05</izz>
+        </inertia>
+      </inertial>
+     <!-- Tilt visual removed to avoid obscuring the image; collision geometry remains -->
+     <collision name='tilt_col'>
+        <pose>0 0 -0.005 0 0 0</pose>
+        <geometry>
+         <mesh>
+           <scale>0.001 0.001 0.001</scale>
+           <uri>model://gimbal_small_2d/meshes/tilt.dae</uri>
+         </mesh>
+        </geometry>
+      </collision>
+
+
+      <!-- camera roll image removed; collision stops -->
+      <collision name='camera_col'>
+        <pose>0 0 0.02 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.025</radius>
+            <length>0.050</length>
+          </cylinder>
+        </geometry>
+     </collision>
+
+
+      <sensor name="camera" type="camera">
+        <pose>0 0 0 -1.57 -1.57 0</pose>
+        <camera>
+          <horizontal_fov>2.0</horizontal_fov>
+          <image>
+            <width>640</width>
+            <height>480</height>
+          </image>
+          <clip>
+            <near>0.05</near>
+            <far>15000</far>
+          </clip>
+        </camera>
+        <!-- swarm_drone integration: the main camera is the drone's webcam sensor (cam_link sourced to tilt_link). This built-in camera is turned off on the 5 drone to avoid unnecessary rendering. -->
+        <always_on>0</always_on>
+        <update_rate>10</update_rate>
+        <visualize>0</visualize>
+      </sensor>
+
+    </link>
+
+    <joint name='tilt_joint' type='revolute'>
+       <parent>base_link</parent>
+       <child>tilt_link</child>
+
+      <!-- implicit_spring_damper + damping REMOVED: the two were using the MARGIN joint motor and were locking the joint by crushing the plugin's speed-servo command with "speed=0" at each step (measured). The servo provides the damping. -->
+      <axis>
+        <xyz>1 0 0</xyz>
+        <use_parent_model_frame>1</use_parent_model_frame>
+        <limit>
+          <!-- vertical gimbal operating range +-90 deg (original was -0.1..pi; our mounting orientation requires up/down symmetrical range) -->
+          <lower>-1.5707963</lower>
+          <upper>1.5707963</upper>
+          <effort>10</effort>
+          <velocity>-1</velocity>
+        </limit>
+      </axis>
+      <pose>0 0 0.02 0 0 0</pose>
+    </joint>
+
+    <plugin name="gimbal_small_2d" filename="libGimbalSmall2dPlugin.so">
+      <joint>tilt_joint</joint>
+      <!-- stabilize: command is camera's WORLD-frame pitch; the view remains fixed (actual gimbal behavior) even though the body does pitch. camera_axis: orientation of the camera optical axis in the LOCAL axes tilt_link (tilt_link -90 with yaw -> +Y in the swarm_drone mount). -->
+      <stabilize>1</stabilize>
+      <camera_axis>0 1 0</camera_axis>
+    </plugin>
+  </model>
+</sdf>

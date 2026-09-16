@@ -1,0 +1,24 @@
+# ========================================================== target_plane.parm - target fixed-wing
+# (gazebo-plane6 / stars-plane)
+# ============================================================================ Loading chain:
+# gazebo-plane.parm, THIS FILE (probe). Content moved from bumblebee/params/target.parm; The
+# measurements there are valid. ---------------------------------------------------------------------
+
+# 1) TECS_SYNAIRSPEED 1 - Required for AUTO/GUIDED speed commands to take effect. ARSPD_TYPE 0
+# (fdm.airspeed is always 0 because Gazebo does not call backend Aircraft::update_dynamics()). AP_TECS
+# chooses the path without airspeed while SYNAIRSPEED 0; DO_CHANGE_SPEED (178) The aircraft remains at
+# trim speed even if ACK=ACCEPTED is returned. Measurement (bumblebee, 2026-07-25): syn=0 -> command
+# 10/15/18/22 m/s, realized ALL 20.2; syn=1 -> 9.93 / 15.01 / 17.93 / 21.98.
+TECS_SYNAIRSPEED 1
+
+# 2) AIRSPEED_CRUISE 20 - ArduPlane 4.7 TRIM_ARSPD_CM in gazebo-plane.parm is now an invalid name; If
+# not written, factory 12 m/s remains.
+AIRSPEED_CRUISE 20
+
+# 3) AHRS_WIND_MAX 1 - trims synthetic airspeed error. IAS = |V_gps(NED) - W_EKF3| / Since EAS2TAS is
+# produced, the only source of error is EKF3 wind forecast and cannot be observed in the straight leg.
+# Without clipping, the ground speed can be 22.05 while keeping IAS 20.
+AHRS_WIND_MAX 1
+
+# 4) ARSPD_TYPE 0 - The validity of (1) and (3) depends on this; for clarity.
+ARSPD_TYPE 0

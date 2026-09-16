@@ -1,0 +1,44 @@
+# --- runtime/large productions (does not go into repo) --- flight log videos (50 MB to 1.6 GB; small
+# PROOF videos are under run/evidence/ and goes into repo)
+videos/
+# SITL working status: tlog + DataFlash BIN, kosher kosher GB
+/run/
+run/sitl*/
+run/ros/
+run/pids
+run/launcher.lock
+# Supervisor logs reproduced in each run
+logs/
+plugins/hummingbird_bridge/build/
+__pycache__/
+*.pyc
+
+# Local experiment/autopilot state: not sourced, reproduced.
+run/trials/
+run/*.log
+run/selected_model
+eeprom.bin
+terrain/*.DAT
+
+# Local camera acceptance photos may include people/faces and work environment.
+system_static_tests/
+
+# The raw actual flight/telemetry data does not enter the public source repository.
+IRL_Tests/
+*.tlog
+*.rlog
+*.ulg
+all_star_env.zip
+
+# Local credentials and keys.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+secrets.json
+
+# Editor/agent local run settings.
+.claude/
+old_los_codes/

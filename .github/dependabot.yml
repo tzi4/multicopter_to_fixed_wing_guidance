@@ -1,0 +1,32 @@
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 5
+    # Raspberry Pi/ROS toolchain is validated on CPython 3.8. Dependabot does
+    # not infer that constraint from this lock file, so exclude releases that
+    # no longer publish Python 3.8 distributions.
+    ignore:
+      - dependency-name: numpy
+        versions: [">=1.25.0"]
+      - dependency-name: scipy
+        versions: [">=1.11.0"]
+      - dependency-name: matplotlib
+        versions: [">=3.8.0"]
+      - dependency-name: redis
+        versions: [">6.1.1"]
+      # OpenCV 5 is a major API transition. Keep automated updates on 4.x;
+      # the CI smoke test validates the simulator's actual HSV detector path.
+      - dependency-name: opencv-python
+        versions: [">=5.0.0"]
+      # mavlinkHandler 0.0.16 (used by velocity_control.py) requires this
+      # exact pymavlink version in its published package metadata.
+      - dependency-name: pymavlink
+        versions: [">2.4.41"]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 5

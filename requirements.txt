@@ -1,0 +1,24 @@
+# Runtime Python dependencies for Raspberry Pi 5 and physical hardware.
+# Setup:  pip install -r requirements.txt
+#
+# rospy (ROS) and the simulation-side cv2 integration are used only in simulation.
+# Do not install ROS on the physical platform (see HARDWARE_MISSION.md).
+# The packages below are shared runtime dependencies for simulation and hardware.
+
+pymavlink==2.4.41      # MAVLink version compatible with mavlinkHandler 0.0.16
+redis>=4.5.0           # interprocess channel (tracker_bbox, command_authority, ...)
+numpy>=1.21            # MPC solver (FISTA), filtering, geometry
+filterpy>=1.4.5        # IMM/Kalman target-state filters
+scipy>=1.7             # FilterPy numerical linear algebra
+
+# --- Only for particular tools/scenarios ---
+opencv-python>=4.14.0.94     # bbox_to_redis HSV detection (simulation). On hardware the IMX500 NN
+                       # detector replaces it (see HARDWARE_MISSION.md, Task 2).
+matplotlib>=3.5        # tools/three_dimensional_video.py (offline 3D tracking video)
+
+# --- Hardware detection layer (Pi 5, installed through apt, not pip) ---
+#   sudo apt install python3-picamera2 imx500-all
+# picamera2 and IMX500 firmware are apt packages, so they are not pip entries here.
+
+# For the reproducible environment verified by CI:
+#   python3 -m pip install -r requirements-lock.txt

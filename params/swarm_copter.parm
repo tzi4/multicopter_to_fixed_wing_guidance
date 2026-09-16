@@ -1,0 +1,77 @@
+# ========================================================== swarm_copter.parm - additional parameters
+# for multicopter SITL ============================================================================ Load
+# chain: copter.parm, gazebo-iris.parm, THIS FILE (last).
+# ---------------------------------------------------------------------
+
+# --- ENVIRONMENT CONTRACT (from companion_scripts/swarm_sitl.parm) --------- 6 vehicle + Gazebo on the
+# same CPU: 400 Hz main loop does not catch up on laptop.
+SCHED_LOOP_RATE 200
+# The Gazebo Iris model has one compass; looking for a second/third blocks pre-arm.
+COMPASS_USE2 0
+COMPASS_PRIO2_ID 0
+COMPASS_USE3 0
+COMPASS_PRIO3_ID 0
+COMPASS_TYPEMASK 2
+# Relax the accelerometer inconsistency threshold for SITL.
+INS_ACC_BODYFIX 2
+
+# --- ROLL 7-10 Hz LIMIT CYCLE CORRECTION (measured 2026-08-08) ------ Model Gazebo iris_base is
+# physically inconsistent: roll inertia ixx=0.008, pitch iyy=0.015 while the motor arms are
+# asymmetrical in the REVERSE direction (y=+-0.22 roll arm, x=+-0.13 pitch arm). Plant gain of roll
+# axis is ~3.2 times pitch; ArduCopter applies the SAME ATC_RAT_* gain to both. Result: roll is
+# inherently marginally stable. When you add the phase delay SCHED_LOOP_RATE 200 (instead of 400), it
+# enters the limit cycle. Measured (hover, ALT_HOLD, live SITL): D=0.0036 (stock) -> roll 15.87 dps
+# RMS @7.5 Hz, angle 0.187 deg D=0.0010 -> roll 0.60 dps RMS, angle 0.010 deg (26x) Pitch is clear in
+# both cases (0.2-0.5 dps) - axis evidence of its asymmetry. NOTE: This vibration existed since the
+# first commit (9.4 Hz, 11.2 dps in 08-01 logs). Gimbal is NOT THE CAUSE; just added mass and lowered
+# the frequency to 9.4->7.5 Hz. It wasn't there in the original ../guidance_value.sh because it didn't load
+# parm at all, so SCHED_LOOP_RATE remained at the default 400.
+ATC_RAT_RLL_D 0.001
+
+# =====================================================================
+# FLIGHT ENVELOPE USED IN THESE TRIALS
+# Each [min..max] annotation gives the range in the ArduPilot parameter
+# definition (libraries/AC_WPNav/AC_WPNav.cpp, AC_Loiter.cpp,
+# AC_AttitudeControl/AC_PosControl.cpp and ArduCopter/Parameters.cpp).
+# On 2026-08-05 the speed ceiling changed from 20 to 24 m/s to match the
+# physical platform: formation_KILLER.py NAV_SPEED=24.0, WPNAV_SPEED=2400,
+# ATTACK_SPEED_MPS=24.0. The metadata @Range recommendation of 2000 is not a
+# hard limit; the physical vehicle accepted 2400 during flight.
+# With a target cruising at 20 m/s, equal 20 m/s ceilings provided no closing
+# speed. A 24 m/s ceiling provides a 20% speed margin.
+
+# --- Horizontal speed / acceleration ---
+WPNAV_SPEED 3500          # -> 35 m/s. Measured: setting 2400 produced 24.15 m/s,
+                          # with only 18.5 deg bank (60 deg ceiling) and 0.1 m altitude loss. 35
+                          # m/s was seen in real flight.
+WPNAV_ACCEL 500           # [50..500]  cm/s2 -> 5 m/s2 (CEILING)
+LOIT_SPEED 3500           # [20..3500] cm/s  - retain speed in modes other than GUIDED
+LOIT_ACC_MAX 981          # [100..981] cm/s2 (CEILING)
+
+# --- Vertical speed / acceleration ---
+WPNAV_SPEED_UP 1000       # [10..1000] cm/s -> 10 m/s (CEILING)
+WPNAV_SPEED_DN 500        # [10..500]  cm/s ->  5 m/s (CEILING)
+WPNAV_ACCEL_Z 500         # [50..500]  cm/s2 (CEILING)
+PILOT_SPEED_UP 1000
+PILOT_SPEED_DN 500
+
+# --- Jerk (how hard to react to speed commands) ---
+PSC_JERK_XY 20            # [1..20]  m/s3 (CEILING)
+PSC_JERK_Z 50             # [5..50]  m/s3 (CEILING)
+
+# --- Tilt angle --- ANGLE_MAX range [1000..8000] cdeg. 8000 (80 degree) NOT WRITTEN: the thrust
+# required to hold that tilt is 1/cos(80) = 5.8 x hover thrust, thrust/weight ratio of the iris SITL
+# model ~2. Writing a limit that cannot be reached will cause the multicopter to lose altitude while
+# trying to bank. cos(60) = 0.5 -> 2x, so 6000 is just above the PHYSICAL ceiling of the model; It is
+# reduced if necessary after the measurement.
+ANGLE_MAX 6000            # [1000..8000] cdeg -> 60 degrees
+
+# --- Yaw (speed of turning nose to target) --- NO gimbal on HORIZONTAL axis (2026-08-05 gimbal
+# branch: gimbal SINGLE AXIS, tilt/vertical only). So horizontal framing is still entirely dependent
+# on the airframe yaw: the nose has to keep the bearing to keep the target in frame; 120 Bearing speed
+# for m passes ~10 degrees/s. This reasoning applies EXACTLY to the yaw. NO LONGER VALID for VERTICAL
+# axis: camera on self-stabilizing physical tilt gimbal; body pitch (measured: +-35 deg) is not
+# reflected in the image (max |0.65| deg). The tilt command determines the vertical framing, not pitch
+# (scripts/standoff_geom.sh -> YILDIZ_TILT). see GIMBAL_NOTES.md
+ATC_SLEW_YAW 18000        # [500..18000] cdeg/s -> 180 degrees/s (CEILING)
+ATC_ACCEL_Y_MAX 72000     # [0..72000] cdeg/s2 (CEILING)

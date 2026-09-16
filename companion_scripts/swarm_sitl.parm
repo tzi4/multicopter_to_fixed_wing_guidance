@@ -1,0 +1,18 @@
+# === SWARM SITL PARAM OVERRIDES === Parameters required for multi-vehicle simulation
+
+# Reduce main loop to 200Hz (laptop CPU 6 cannot handle 400Hz in vehicle)
+SCHED_LOOP_RATE 200
+
+# 2. and 3. disable compass (Gazebo SITL has only 1 compass) Prevents "compass 2 not found" error when
+# starting without -w
+COMPASS_USE2 0
+COMPASS_PRIO2_ID 0
+COMPASS_USE3 0
+COMPASS_PRIO3_ID 0
+COMPASS_TYPEMASK 2  # Only the first compass is active (bitmask bit1 disables the second compass)
+
+# Relax accelerometer inconsistency threshold for SITL
+INS_ACC_BODYFIX 2
+
+# Drone GUIDED mode horizontal speed: 18 m/s = 1800 cm/s (default 1000)
+WPNAV_SPEED 1800
