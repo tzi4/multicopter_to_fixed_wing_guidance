@@ -8,7 +8,7 @@
 pymavlink==2.4.41      # MAVLink version compatible with mavlinkHandler 0.0.16
 redis>=4.5.0           # interprocess channel (tracker_bbox, command_authority, ...)
 numpy>=1.21            # MPC solver (FISTA), filtering, geometry
-filterpy>=1.4.5        # IMM/Kalman target-state filters
+filterpy>=2.0.0        # IMM/Kalman target-state filters
 scipy>=1.7             # FilterPy numerical linear algebra
 
 # --- Only for particular tools/scenarios ---
